@@ -1,0 +1,2164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>HSL Auditorium Stage Refresh</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="3D model of the Houston Levee main auditorium, built from the 2016 building plans, for planning the February 2027 stage screens refresh.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Montserrat:wght@500;600;700;800;900&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;1,8..60,400&display=swap">
+<style>
+/* Layout: a production drawing sheet. The model viewport fills the left and stays dark in both
+   themes, the way the room reads with house lights down. The right-hand strip holds the title block,
+   the screen package with its placement controls, the sightline readouts and the dimension schedule.
+   On phones the strip drops below the viewport. */
+:root {
+  --paper: #e7eae6;
+  --panel: #fbfcfa;
+  --ink: #15181a;
+  --ink-2: #59615c;
+  --rule: #d2d8d1;
+  --accent: #3e7c47;
+  --accent-ink: #ffffff;
+  --accent-soft: #e1eee2;
+  --track: #cfd6ce;
+  --amber: #8a5a00; --amber-bg: #fbecc8;
+  --plan: #2f6a38; --plan-bg: #e1eee2;
+  --quote: #2b58a5; --quote-bg: #e2eaf8;
+  --warn: #a3321f; --warn-bg: #fbe3dd;
+  /* Viewport overlay: the same in both themes, because the model ground is always dark */
+  --vp: #0e1012;
+  --vp-panel: rgba(20, 23, 25, 0.9);
+  --vp-ink: #e8ece6;
+  --vp-ink-2: #a3ada5;
+  --vp-rule: #343b37;
+  --vp-accent: #8fca98;
+  --vp-label: rgba(13, 15, 17, 0.86);
+  --f-ui: "Montserrat", "Helvetica Neue", Arial, sans-serif;
+  --f-text: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0b0d0c; --panel: #141816; --ink: #e5e9e3; --ink-2: #9ba59d; --rule: #29302b;
+    --accent: #79bd83; --accent-ink: #0b0d0c; --accent-soft: #1b2b1e; --track: #2d3530;
+    --amber: #f0b45a; --amber-bg: #392a12; --plan: #86c890; --plan-bg: #172a1b;
+    --quote: #8fb1f0; --quote-bg: #172238; --warn: #f19a87; --warn-bg: #3a1a14;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0b0d0c; --panel: #141816; --ink: #e5e9e3; --ink-2: #9ba59d; --rule: #29302b;
+  --accent: #79bd83; --accent-ink: #0b0d0c; --accent-soft: #1b2b1e; --track: #2d3530;
+  --amber: #f0b45a; --amber-bg: #392a12; --plan: #86c890; --plan-bg: #172a1b;
+  --quote: #8fb1f0; --quote-bg: #172238; --warn: #f19a87; --warn-bg: #3a1a14;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  padding-block: 16px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background: var(--paper);
+  color: var(--ink);
+  font: 500 14px/1.5 var(--f-ui);
+}
+.app { display: grid; grid-template-columns: minmax(0, 1fr) 372px; gap: 16px; height: 100%; }
+
+/* ---- Model viewport ---- */
+.sheet { position: relative; min-width: 0; min-height: 0; overflow: hidden; background: var(--vp); border: 1px solid var(--ink); border-radius: 4px; }
+#viewport { position: absolute; inset: 0; }
+#viewport canvas { display: block; width: 100%; height: 100%; }
+.labels { position: absolute; top: 0; left: 0; pointer-events: none; }
+.shot-frame { position: absolute; z-index: 1; pointer-events: none; outline: 1px solid rgba(232, 236, 230, 0.6); box-shadow: 0 0 0 100vmax rgba(8, 9, 10, 0.82); }
+.camctl { pointer-events: auto; display: grid; gap: 8px; width: min(290px, 100%); padding: 9px 11px 7px; background: var(--vp-panel); border: 1px solid var(--vp-rule); border-radius: 4px; }
+.camctl[hidden], .camctl .ctl[hidden] { display: none; }
+.camctl .ctl label, .camctl .ctl output { color: var(--vp-ink); }
+.camctl .ctl input[type="range"] { accent-color: var(--vp-accent); }
+.camctl .ctl .ctl-name { font: 600 12px/1.25 var(--f-ui); color: var(--vp-ink); }
+.vseg.lensseg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-column: 1 / -1; margin-top: 4px; }
+.lensseg button { padding: 7px 6px; }
+.fallback { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; padding: 24px; text-align: center; color: var(--vp-ink-2); font: 500 13px var(--f-mono); }
+
+.toolbar { position: absolute; top: 14px; left: 14px; right: 14px; z-index: 2; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px; pointer-events: none; }
+.toolbar > * { pointer-events: auto; }
+.vseg { display: inline-flex; flex-wrap: wrap; background: var(--vp-panel); border: 1px solid var(--vp-rule); border-radius: 4px; overflow: hidden; }
+.vseg .grp { padding: 9px 9px 0 10px; font: 700 9px/1 var(--f-ui); letter-spacing: 0.14em; text-transform: uppercase; color: var(--vp-ink-2); }
+.vseg button {
+  font: 600 12px/1 var(--f-ui); color: var(--vp-ink); background: transparent; border: 0;
+  border-right: 1px solid var(--vp-rule); padding: 9px 11px; cursor: pointer;
+}
+.vseg button:last-child { border-right: 0; }
+.vseg button:hover { background: rgba(255, 255, 255, 0.07); }
+.vseg button[aria-pressed="true"] { background: var(--vp-accent); color: #0d120e; }
+.vchk { display: inline-flex; align-items: center; gap: 7px; padding: 8px 10px; background: var(--vp-panel); border: 1px solid var(--vp-rule); border-radius: 4px; font: 600 12px/1 var(--f-ui); color: var(--vp-ink); cursor: pointer; }
+.vchk input { margin: 0; accent-color: var(--vp-accent); }
+button:focus-visible, input:focus-visible, label:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sheet button:focus-visible, .sheet label:focus-within { outline-color: var(--vp-accent); }
+
+.foot { position: absolute; left: 14px; right: 14px; bottom: 12px; z-index: 2; display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; pointer-events: none; }
+.scalebar { font: 500 10.5px/1 var(--f-mono); color: var(--vp-ink); background: var(--vp-label); padding: 6px 8px 5px; border-radius: 3px; }
+.scalebar .bar { display: flex; height: 6px; border: 1px solid var(--vp-ink); }
+.scalebar .bar i { flex: 1; }
+.scalebar .bar i:nth-child(odd) { background: var(--vp-ink); }
+.scalebar .ticks { position: relative; height: 12px; margin-top: 4px; }
+.scalebar .ticks span { position: absolute; top: 0; }
+.scalebar .ticks span:nth-child(1) { left: 0; }
+.scalebar .ticks span:nth-child(2) { left: 50%; transform: translateX(-50%); }
+.scalebar .ticks span:nth-child(3) { right: 0; }
+.caption { margin: 0 0 0 auto; padding: 5px 8px; max-width: 64%; text-align: right; font: 500 11px/1.4 var(--f-mono); color: var(--vp-ink-2); background: var(--vp-label); border-radius: 3px; }
+.caption b { color: #f2c46d; font-weight: 600; }
+
+/* 3D annotations */
+.lbl {
+  display: inline-block; padding: 2px 5px; white-space: nowrap; border-radius: 2px;
+  font: 500 11px/1.2 var(--f-mono); font-variant-numeric: tabular-nums; color: var(--vp-accent);
+  background: var(--vp-label); border: 1px solid rgba(143, 202, 152, 0.45);
+}
+.sec-lbl { font: 800 11px/1 var(--f-ui); letter-spacing: 0.06em; color: rgba(232, 236, 230, 0.78); text-shadow: 0 1px 2px #000; }
+
+/* ---- Right-hand strip ---- */
+.panel { min-width: 0; min-height: 0; overflow: auto; background: var(--panel); border: 1px solid var(--ink); border-radius: 4px; }
+.tb { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--ink); }
+.tb > div { min-width: 0; padding: 9px 14px 10px; border-top: 1px solid var(--rule); }
+.tb .wide { grid-column: 1 / -1; border-top: 0; padding: 16px 14px 14px; }
+.tb .c2 { border-left: 1px solid var(--rule); }
+.k { display: block; font: 700 9.5px/1.2 var(--f-ui); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-2); }
+.v { display: block; margin-top: 3px; font: 600 12.5px/1.35 var(--f-ui); }
+h1 { margin: 6px 0 4px; font: 900 21px/1.08 var(--f-ui); letter-spacing: 0.01em; text-transform: uppercase; text-wrap: balance; }
+.sub { margin: 0; font: italic 400 14px/1.4 var(--f-text); color: var(--ink-2); }
+.sec { padding: 16px 14px 18px; border-bottom: 1px solid var(--rule); display: grid; gap: 12px; }
+.sec:last-child { border-bottom: 0; }
+h2 { margin: 0; font: 800 10.5px/1.25 var(--f-ui); letter-spacing: 0.14em; text-transform: uppercase; }
+.note, .hint { margin: 0; font: 400 13.5px/1.45 var(--f-text); color: var(--ink-2); }
+
+.pseg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--ink); border-radius: 4px; overflow: hidden; }
+.pseg.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.pseg button { font: 700 11.5px/1.2 var(--f-ui); color: var(--ink); background: transparent; border: 0; border-left: 1px solid var(--rule); padding: 9px 6px; cursor: pointer; }
+.pseg button:first-child { border-left: 0; }
+.pseg button:hover { background: var(--accent-soft); }
+.pseg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.pseg button:disabled { opacity: 0.45; cursor: not-allowed; background: transparent; }
+.pixmap { margin: 0; }
+.pixmap svg { display: block; width: 100%; height: auto; }
+.px-scr { fill: var(--plan-bg); stroke: var(--plan); stroke-width: 2; }
+.px-ris { fill: var(--amber-bg); stroke: var(--amber); stroke-width: 2; }
+.px-t { fill: var(--ink); font: 800 40px var(--f-ui); text-anchor: middle; }
+.px-s { fill: var(--ink-2); font: 500 30px var(--f-mono); text-anchor: middle; }
+.px-n { fill: var(--ink-2); font: italic 400 26px var(--f-text); text-anchor: middle; }
+.note a { color: var(--accent); font-weight: 600; }
+
+.scr { border: 1px solid var(--rule); border-radius: 4px; padding: 12px 12px 13px; display: grid; gap: 10px; }
+.scr header { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.scr h3 { margin: 0; font: 800 13px/1.2 var(--f-ui); }
+.spec { margin: 0; font: 500 12px/1.5 var(--f-mono); font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.spec b { color: var(--ink); font-weight: 600; }
+.ctl { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 2px 10px; }
+.ctl label { font: 600 12px/1.25 var(--f-ui); color: var(--ink); }
+.ctl output { font: 600 12px/1 var(--f-mono); font-variant-numeric: tabular-nums; color: var(--ink); }
+.ctl input[type="range"] { grid-column: 1 / -1; width: 100%; margin: 4px 0 0; accent-color: var(--accent); }
+.read { margin: 0; padding: 7px 9px; border-radius: 3px; background: var(--accent-soft); font: 500 12px/1.45 var(--f-mono); font-variant-numeric: tabular-nums; }
+.read.bad { background: var(--warn-bg); color: var(--warn); }
+
+#trussCtl { display: grid; gap: 8px; }
+details.truss { border: 1px solid var(--rule); border-radius: 4px; }
+details.truss summary { cursor: pointer; padding: 9px 12px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font: 800 12.5px/1.3 var(--f-ui); }
+details.truss summary span { font: 500 11.5px/1.3 var(--f-mono); color: var(--ink-2); }
+details.truss .pts { display: grid; gap: 10px; padding: 4px 12px 12px; }
+details.truss .ctl.all label { font-weight: 800; }
+
+.files { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.file { display: grid; place-items: center; text-align: center; padding: 8px 6px; border: 1px dashed var(--ink-2); border-radius: 4px; font: 600 11.5px/1.25 var(--f-ui); cursor: pointer; }
+.file:hover { background: var(--accent-soft); }
+.dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.dl .k, .dl .dl-note { grid-column: 1 / -1; }
+.dl .dl-note { font-size: 12.5px; }
+.dl .dl-note a { display: inline; padding: 0; border: 0; font: inherit; color: var(--accent); text-decoration: underline; }
+.dl .dl-note a:hover { background: none; }
+.dl a { display: grid; gap: 3px; padding: 8px 6px; border: 1px solid var(--rule); border-radius: 4px; text-align: center; font: 700 11.5px/1.2 var(--f-ui); color: var(--ink); text-decoration: none; }
+.dl a:hover { background: var(--accent-soft); border-color: var(--accent); }
+.dl a small { font: 500 11px/1.2 var(--f-mono); font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.file input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+
+table.sight { width: 100%; border-collapse: collapse; font: 500 12px/1.3 var(--f-mono); font-variant-numeric: tabular-nums; }
+table.sight th { text-align: left; font: 700 9.5px/1.2 var(--f-ui); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-2); padding: 0 0 6px; }
+table.sight th:not(:first-child), table.sight td:not(:first-child) { text-align: right; padding-left: 8px; }
+table.sight td { padding: 6px 0; border-top: 1px solid var(--rule); }
+table.sight td:first-child { font-family: var(--f-ui); font-weight: 600; white-space: nowrap; }
+table.sight th:last-child { white-space: nowrap; }
+table.pxmap td:first-child { white-space: normal; }
+table.pxmap td:not(:first-child) { white-space: nowrap; }
+
+.btnrow { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn { font: 700 12px/1 var(--f-ui); padding: 9px 12px; border-radius: 4px; border: 1px solid var(--ink); background: var(--panel); color: var(--ink); cursor: pointer; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn:hover { filter: brightness(0.96); }
+.copied { font: 600 12px/1 var(--f-ui); color: var(--plan); align-self: center; }
+textarea.copytxt { width: 100%; min-height: 150px; font: 500 11.5px/1.45 var(--f-mono); color: var(--ink); background: var(--paper); border: 1px solid var(--rule); border-radius: 4px; padding: 8px; resize: vertical; }
+
+.sched { list-style: none; margin: 0; padding: 0; }
+.sched li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 3px 10px; padding: 8px 0; border-top: 1px solid var(--rule); }
+.sched li:first-child { border-top: 0; padding-top: 0; }
+.sched .item { font-size: 12.5px; font-weight: 600; color: var(--ink-2); }
+.sched .val { grid-column: 1 / -1; font: 500 12.5px/1.4 var(--f-mono); font-variant-numeric: tabular-nums; }
+.chip { font: 700 9px/1 var(--f-ui); font-style: normal; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; padding: 3px 5px; border: 1px solid; border-radius: 2px; }
+.chip.plans { color: var(--plan); background: var(--plan-bg); border-color: color-mix(in srgb, var(--plan) 40%, transparent); }
+.chip.scaled { color: var(--ink-2); border-color: var(--rule); }
+.chip.quote { color: var(--quote); background: var(--quote-bg); border-color: color-mix(in srgb, var(--quote) 40%, transparent); }
+.chip.est { color: var(--amber); background: var(--amber-bg); border-color: color-mix(in srgb, var(--amber) 45%, transparent); }
+.chip.site { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
+.chip.set { color: var(--quote); border-color: color-mix(in srgb, var(--quote) 45%, transparent); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 12px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+
+/* Clean sheet for exported renders (?shot, ?shot&bare) */
+.shot .ui-only { display: none !important; }
+/* Designer copy (hsl_graphics_preview.html): graphics preview only */
+.designer .full-only { display: none !important; }
+.bare .app { grid-template-columns: minmax(0, 1fr); }
+.bare .panel { display: none; }
+
+@media (max-width: 900px) {
+  html, body { height: auto; }
+  .app { grid-template-columns: minmax(0, 1fr); height: auto; }
+  .sheet { height: 72vh; height: 72svh; min-height: 420px; }
+  .sheet.shooting { height: 86vh; height: 86svh; }   /* a camera view needs room for its frame between the toolbar and its controls */
+  .panel { overflow: visible; }
+  .caption { max-width: 100%; }
+  .foot { flex-wrap: wrap; }
+}
+@media (max-width: 480px) {
+  .vseg button { padding: 8px 8px; font-size: 11.5px; }
+  .vseg .grp { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<div class="app">
+  <main class="sheet" aria-label="3D model of the HSL main auditorium">
+    <div id="viewport"></div>
+    <div id="shotFrame" class="shot-frame" hidden></div>
+    <p id="fallback" class="fallback">Loading the 3D model…</p>
+
+    <div class="toolbar ui-only">
+      <div class="vseg" role="group" aria-label="Drawings">
+        <span class="grp" aria-hidden="true">Model</span>
+        <button type="button" data-view="overview" aria-pressed="true">3D</button>
+        <button type="button" data-view="plan" aria-pressed="false">Plan</button>
+        <button type="button" data-view="section" aria-pressed="false">Section</button>
+      </div>
+      <div class="vseg" role="group" aria-label="Seat views">
+        <span class="grp" aria-hidden="true">Seats</span>
+        <button type="button" data-view="front" aria-pressed="false">Front row</button>
+        <button type="button" data-view="floor" aria-pressed="false">Floor</button>
+        <button type="button" data-view="slope" aria-pressed="false">Slope left</button>
+        <button type="button" data-view="foh" aria-pressed="false">FOH</button>
+        <button type="button" data-view="balc" aria-pressed="false">Balcony</button>
+        <button type="button" data-view="balcSide" aria-pressed="false">Balcony left</button>
+      </div>
+      <div class="vseg" role="group" aria-label="Camera views">
+        <span class="grp" aria-hidden="true">Camera</span>
+        <button type="button" data-view="camFL" aria-pressed="false">Far left</button>
+        <button type="button" data-view="camL" aria-pressed="false">Left</button>
+        <button type="button" data-view="cam" aria-pressed="false">Center</button>
+        <button type="button" data-view="camR" aria-pressed="false">Right</button>
+        <button type="button" data-view="camFR" aria-pressed="false">Far right</button>
+        <button type="button" data-view="camFloor" aria-pressed="false">Floor</button>
+      </div>
+      <label class="vchk full-only" for="dimsToggle"><input type="checkbox" id="dimsToggle" checked> Dimensions</label>
+    </div>
+
+    <div class="foot">
+      <div id="scalebar" class="scalebar" hidden>
+        <div class="bar"><i></i><i></i><i></i><i></i></div>
+        <div class="ticks"><span>0</span><span class="t-mid">10</span><span class="t-end">20 ft</span></div>
+      </div>
+      <div id="camCtl" class="camctl ui-only" role="group" aria-label="Camera" hidden>
+        <div class="ctl"><label for="cam-zoom">Zoom</label><output id="cam-zoom-o" for="cam-zoom"></output>
+          <input type="range" id="cam-zoom" min="0" max="100" step="0.5"></div>
+        <div class="ctl"><label for="cam-pan">Pan</label><output id="cam-pan-o" for="cam-pan"></output>
+          <input type="range" id="cam-pan" min="-15" max="15" step="0.1" value="0"></div>
+        <div class="ctl" id="camTiltRow"><label for="cam-tilt">Tilt</label><output id="cam-tilt-o" for="cam-tilt"></output>
+          <input type="range" id="cam-tilt" min="-10" max="10" step="0.1" value="0"></div>
+      </div>
+      <div id="viewCtl" class="camctl ui-only" role="group" aria-label="3D view" hidden>
+        <div class="ctl"><span class="ctl-name" id="lens-l">Field of view</span><output id="lens-o"></output>
+          <div class="vseg lensseg" role="group" aria-labelledby="lens-l">
+            <button type="button" data-lens="wide" aria-pressed="false">Wide</button>
+            <button type="button" data-lens="normal" aria-pressed="true">Normal</button>
+            <button type="button" data-lens="narrow" aria-pressed="false">Narrow</button>
+          </div></div>
+        <div class="ctl"><label for="view-tilt">Tilt</label><output id="view-tilt-o" for="view-tilt"></output>
+          <input type="range" id="view-tilt" min="-30" max="60" step="0.5" value="0"></div>
+      </div>
+      <p id="caption" class="caption">3D view from house left</p>
+    </div>
+  </main>
+
+  <aside class="panel">
+    <header class="tb">
+      <div class="wide">
+        <span class="k">The Life Church · Houston Levee</span>
+        <h1>HSL Auditorium Stage Refresh</h1>
+        <p class="sub">Main auditorium model for the stage screens refresh, February 2027 install</p>
+      </div>
+      <div class="full-only"><span class="k">Drawing</span><span class="v" id="tbView">3D overview</span></div>
+      <div class="c2 full-only"><span class="k">Revision</span><span class="v" data-k="rev">Draft 1</span></div>
+      <div class="full-only"><span class="k">Source</span><span class="v">A1.01 + A4.00, Rev 19</span></div>
+      <div class="c2 full-only"><span class="k">Date</span><span class="v" data-k="date">15 Oct 2026</span></div>
+    </header>
+
+    <section class="sec" aria-labelledby="h-scen">
+      <h2 id="h-scen">Screens on the stage</h2>
+      <div class="pseg full-only" role="group" aria-label="Screen package">
+        <button type="button" data-scen="existing" aria-pressed="false">Today</button>
+        <button type="button" data-scen="refresh" aria-pressed="true">Feb 2027</button>
+        <button type="button" data-scen="compare" aria-pressed="false">Compare</button>
+      </div>
+
+      <div class="scr" id="card-existing" hidden>
+        <header><h3>Existing LED wall</h3><em class="chip site">Site</em></header>
+        <p class="spec"><b>15.36 × 3.96 m</b> · <span data-k="ex-ftin"></span><br>3840 × 990 px · 4 mm pitch · directly below the beam</p>
+        <div class="ctl"><label for="ex-trim">Bottom above stage deck</label><output id="ex-trim-o" for="ex-trim"></output>
+          <input type="range" id="ex-trim" min="0" max="6" step="0.25"></div>
+        <p class="read" id="ex-read"></p>
+      </div>
+
+      <div class="scr" id="card-center">
+        <header><h3>Screen 1 · center</h3><em class="chip quote full-only">Size: quote</em></header>
+        <p class="spec"><b>18.0 × 7.5 m</b> · <span data-k="c-ftin"></span><br>5760 × 2400 px · 36 × 7½ cabinets · ROE JT3.1</p>
+        <div class="ctl full-only"><label for="c-up">Face upstage of the beam</label><output id="c-up-o" for="c-up"></output>
+          <input type="range" id="c-up" min="0" max="14" step="0.25"></div>
+        <p class="read" id="c-read"></p>
+      </div>
+
+      <div class="scr" id="card-sides">
+        <header><h3>Screens 2 + 3 · sides</h3><em class="chip quote full-only">Size: quote</em></header>
+        <p class="spec"><b>9.0 × 7.5 m each</b> · <span data-k="s-ftin"></span><br>2880 × 2400 px · 18 × 7½ cabinets · mirrored pair</p>
+        <div class="ctl full-only"><label for="s-off">Center, off the room centerline</label><output id="s-off-o" for="s-off"></output>
+          <input type="range" id="s-off" min="36" max="66" step="0.25"></div>
+        <div class="ctl full-only"><label for="s-down">Face downstage of the beam</label><output id="s-down-o" for="s-down"></output>
+          <input type="range" id="s-down" min="0" max="24" step="0.25"></div>
+        <div class="ctl full-only"><label for="s-toe">Toe-in toward center</label><output id="s-toe-o" for="s-toe"></output>
+          <input type="range" id="s-toe" min="0" max="35" step="0.5"></div>
+        <p class="read" id="s-read"></p>
+      </div>
+
+      <p class="note" id="placeNote">Sizes come from the July Solotech quotes. Screen 1 hangs on the 70′ truss, 5′ upstage of the beam. The sliders open on the working layout, last set on 17 Oct. Use Copy placement to pass along any changes.</p>
+      <div class="btnrow full-only">
+        <button type="button" class="btn primary" id="copyBtn">Copy placement</button>
+        <button type="button" class="btn" id="resetBtn">Reset to working layout</button>
+        <span class="copied" id="copied" hidden>Copied</span>
+      </div>
+      <textarea class="copytxt" id="copyTxt" readonly hidden aria-label="Placement text to copy"></textarea>
+    </section>
+
+    <section class="sec" aria-labelledby="h-risers">
+      <h2 id="h-risers">Band risers</h2>
+      <p class="spec"><b>16′-0″ × 8′-0″ each</b>; the drums riser's stage-left half runs 2′ further upstage. Three outer sides wrapped in ROE JT3.1 500 × 500 mm half panels, ten across each front and five on each end.</p>
+      <div class="ctl"><label for="k-x">Keys, stage right: front edge downstage of the beam</label><output id="k-x-o" for="k-x"></output>
+        <input type="range" id="k-x" min="-4" max="30" step="0.25"></div>
+      <div class="ctl"><label for="k-y">Keys: center, off the centerline</label><output id="k-y-o" for="k-y"></output>
+        <input type="range" id="k-y" min="0" max="40" step="0.25"></div>
+      <div class="ctl"><label for="d-x">Drums, stage left: front edge downstage of the beam</label><output id="d-x-o" for="d-x"></output>
+        <input type="range" id="d-x" min="-4" max="30" step="0.25"></div>
+      <div class="ctl"><label for="d-y">Drums: center, off the centerline</label><output id="d-y-o" for="d-y"></output>
+        <input type="range" id="d-y" min="0" max="40" step="0.25"></div>
+      <p class="read" id="r-read"></p>
+    </section>
+
+    <section class="sec" aria-labelledby="h-truss" id="sec-truss">
+      <h2 id="h-truss">Trusses, Feb 2027 rig</h2>
+      <p class="note full-only">Positions come from the top-down rigging sketch, with everything upstage of the beam moved 1′ downstage on 17 Oct. The 70′ Screen 1 truss rides just above the screen and moves with Screen 1’s sliders. The others open at the trims set on 15 Oct. Each slider sets one pick point’s trim, the bottom of the truss above the deck. Uneven points tilt the truss without stretching it, so its ends swing in and the chains lean slightly; two points can differ by no more than their spacing along the truss. Green dots are the 600 lb hang points.</p>
+      <div id="trussCtl"></div>
+      <p class="read full-only" id="t-read"></p>
+    </section>
+
+    <section class="sec" aria-labelledby="h-content">
+      <h2 id="h-content">On the screens</h2>
+      <div class="pseg" role="group" aria-label="Screen content">
+        <button type="button" data-content="layout" aria-pressed="true">Cabinet layout</button>
+        <button type="button" data-content="sample" aria-pressed="false">Sample</button>
+        <button type="button" data-content="file" aria-pressed="false" disabled>Your PNG</button>
+      </div>
+      <label class="file" for="pixmapFile">Load a pixel-map PNG<input type="file" id="pixmapFile" accept="image/png,image/jpeg,image/webp"></label>
+      <p class="read bad" id="pixmapWarn" hidden></p>
+      <figure class="pixmap">
+        <svg viewBox="0 0 1152 352" role="img" aria-label="Pixel map: Screen 2, Screen 1 and Screen 3 across the top, the keys and drums riser wraps in a strip centered under Screen 1">
+          <rect class="px-scr" x="1" y="1" width="286" height="238"/><rect class="px-scr" x="289" y="1" width="574" height="238"/><rect class="px-scr" x="865" y="1" width="286" height="238"/>
+          <text class="px-t" x="144" y="112">SCREEN 2</text><text class="px-s" x="144" y="152">2880 × 2400</text>
+          <text class="px-t" x="576" y="112">SCREEN 1</text><text class="px-s" x="576" y="152">5760 × 2400</text>
+          <text class="px-t" x="1008" y="112">SCREEN 3</text><text class="px-s" x="1008" y="152">2880 × 2400</text>
+          <rect class="px-ris" x="257" y="250" width="79" height="60"/><rect class="px-ris" x="337" y="250" width="159" height="60"/><rect class="px-ris" x="497" y="250" width="79" height="60"/>
+          <rect class="px-ris" x="577" y="250" width="79" height="60"/><rect class="px-ris" x="657" y="250" width="159" height="60"/><rect class="px-ris" x="817" y="250" width="79" height="60"/>
+          <text class="px-s" x="416" y="291">KEYS</text><text class="px-s" x="736" y="291">DRUMS</text>
+          <text class="px-n" x="576" y="342">riser row drawn taller than scale</text>
+        </svg>
+      </figure>
+      <table class="sight pxmap">
+        <thead><tr><th colspan="2">File sizes you can load</th></tr></thead>
+        <tbody>
+          <tr><td>All three screens and both riser wraps</td><td>11520 × 2560</td></tr>
+          <tr><td>All three screens</td><td>11520 × 2400</td></tr>
+          <tr><td>Screen 1 and both riser wraps</td><td>6400 × 2560</td></tr>
+          <tr><td>Screen 1</td><td>5760 × 2400</td></tr>
+        </tbody>
+      </table>
+      <div class="dl" role="group" aria-label="Download a labeled template">
+        <span class="k">Download a labeled template</span>
+        <a href="hsl-pixel-map-11520x2560.png" target="_blank" rel="noopener" data-dl>Full map<small>11520 × 2560</small></a>
+        <a href="hsl-pixel-map-11520x2400-screens.png" target="_blank" rel="noopener" data-dl>Three screens<small>11520 × 2400</small></a>
+        <a href="hsl-pixel-map-6400x2560-screen-1-risers.png" target="_blank" rel="noopener" data-dl>Screen 1 + risers<small>6400 × 2560</small></a>
+        <a href="hsl-pixel-map-5760x2400-screen-1.png" target="_blank" rel="noopener" data-dl>Screen 1<small>5760 × 2400</small></a>
+        <p class="note dl-note" id="dlNote" aria-live="polite" hidden></p>
+      </div>
+      <p class="note">The page reads a file's size to know what it fills. A 6400 × 2560 file is the full map cropped to x 2560–8960, so Screen 1 sits at x 320 with the riser strip along the bottom. Anything a file doesn't cover goes dark.</p>
+      <table class="sight pxmap">
+        <thead><tr><th>In the full map</th><th>Pixels</th><th>At x, y</th></tr></thead>
+        <tbody>
+          <tr><td>Screen 2, house left</td><td>2880 × 2400</td><td>0, 0</td></tr>
+          <tr><td>Screen 1, center</td><td>5760 × 2400</td><td>2880, 0</td></tr>
+          <tr><td>Screen 3, house right</td><td>2880 × 2400</td><td>8640, 0</td></tr>
+          <tr><td>Keys wrap: outer end, front, inner end</td><td>800 + 1600 + 800<br>× 160</td><td>2560, 2400</td></tr>
+          <tr><td>Drums wrap: inner end, front, outer end</td><td>800 + 1600 + 800<br>× 160</td><td>5760, 2400</td></tr>
+        </tbody>
+      </table>
+      <p class="note">The full map puts the three screens at their native resolution across the top and both riser wraps in a strip centered under Screen 1, each wrap reading left to right as seen from the house. The risers are ROE JT3.1 500 mm half panels at 160 px each: ten across each front, five on each end. Files you load stay in this browser.</p>
+    </section>
+
+    <section class="sec full-only" aria-labelledby="h-sight">
+      <h2 id="h-sight">Sightlines, every modeled seat</h2>
+      <table class="sight">
+        <thead><tr><th>Screen</th><th>Near</th><th>Far</th><th>Widest</th><th>Look up</th><th>Over 35°</th></tr></thead>
+        <tbody id="sightBody"></tbody>
+      </table>
+      <p class="note" id="sightNote"></p>
+    </section>
+
+    <section class="sec full-only" aria-labelledby="h-sched">
+      <h2 id="h-sched">Room, as drawn in 2016</h2>
+      <div class="legend">
+        <span><em class="chip plans">Plans</em> written on the sheets</span>
+        <span><em class="chip scaled">Scaled</em> measured at 1/8″ = 1′</span>
+        <span><em class="chip quote">Quote</em> vendor quote</span>
+        <span><em class="chip site">Site</em> measured in the room</span>
+        <span><em class="chip set">Set</em> working layout</span>
+        <span><em class="chip est">Est.</em> confirm</span>
+      </div>
+      <ul class="sched" id="sched"></ul>
+    </section>
+
+    <section class="sec ui-only full-only" aria-labelledby="h-move">
+      <h2 id="h-move">Moving around</h2>
+      <p class="hint">Drag to orbit, right-drag to pan, scroll to zoom. In Plan and Section, dragging pans. In the seat views you sit at that seat; drag to look around.</p>
+    </section>
+  </aside>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+  }
+}
+</script>
+<script>
+  // If the model has not drawn after 12 s, say why instead of showing "Loading" forever.
+  setTimeout(function () {
+    var f = document.getElementById('fallback');
+    if (f && !f.hidden) f.textContent = 'The 3D model could not start. It needs WebGL and access to cdn.jsdelivr.net.';
+  }, 12000);
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
+import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js';
+import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+
+const REV = 'Draft 1', REV_DATE = '15 Oct 2026';
+
+/* =====================================================================================
+   1. SURVEY. The room, scaled from LIVE design group sheets A1.01 (First Floor Plan) and
+   A4.00 (Building Sections), Rev 19 dated 12-09-16, both at 1/8" = 1'-0".
+   Plan origin F is the seating focus, where the house aisles converge: on the room
+   centerline, 1'-8" upstage of the platform-opening header.
+     plan x: + toward the stage back wall, − toward the house
+     plan y: + house right (south), − house left (north)
+   Elevations are project-datum feet (first floor = 280'-0").
+   ===================================================================================== */
+const S = {
+  deck: 281.417,            // 04 Platform Level 281'-5" (A4.00)
+  low: 278.417,             // house low floor, −1'-7" (A1.01 spot elevations)
+  firstFloor: 280.0,        // cross aisle and FOH, 0" (A1.01); 280'-1" scaled on A4.00
+  slopeIn: 64.5,            // house floor is flat out to this radius from F ...
+  slopeOut: 82.0,           // ... then rises about 1:11 to the cross aisle (A4.00 sections 1 and 3)
+  platform: { cx: 8.2, r: 42.7 },    // curved lip: arc centered 8'-2½" upstage of F, 42'-8½" radius
+  backWall: 15.1,           // inside face of the stage back wall
+  stageHalf: 49.0,          // stage house side walls
+  jamb: { x0: -2.87, x1: 0.0, half: 42.27 },  // jamb boxes; clear opening 2 × 42'-3¼" = 84'-6½"
+  header: { x0: -2.94, x1: -0.11, el: 281.417 + 32 + 2 / 12 },  // beam over the opening: bottom 32'-2" above the deck, laser-measured
+                            // by Brian 15 Oct 2026 (A4.00 draws its bottom flange at ~313'-8"; the furred soffit drawn below it, to 307'-3¾", isn't there)
+  prosc: -2.87,             // house-side face of the walls flanking the opening (coplanar with the header)
+  houseHalf: 89.5,          // north and south structural walls (A4.00 section 3); a liner sits about 1' inboard up high
+  rearR: 132.3,             // rear structural wall, radius about F (A4.00 section 1)
+  catwalk: 308.333,         // 04 Catwalk Level 308'-4"
+  roofAtBack: 320.4,        // underside of roof deck at the stage back wall ...
+  roofSlope: 0.0208,        // ... rising 1/4" per foot toward the rear wall
+  balcony: { front: 96.3, parapet: 0.9, walkEl: 284.24, row0El: 284.68, rise: 14 / 12, first: 100.5, pitch: 3.15, rows: 10, seatedRows: 9, parapetTop: 286.23 },
+  stairs: { x0: -6.8, x1: -2.8, yIn: 35.5, yOut: 40.1 },   // two 4-riser stairs at the upstage corners of the lip
+  oldElement: { x: 3.35, bottom: 288.79, top: 305.03 },     // unlabeled 3" element on A4.00 section 1, 4'-0" upstage of the header
+  neWall: [[-5.4, -63.6], [-23.9, -89.5]],    // angled house wall beside the stage (mirrored on the south side)
+};
+
+// Seating as drawn on A1.01 (2016). Event layouts differ: Zoe 2026 seated 1,769 and Axis 2026 seated 2,064.
+const FLOOR_BLOCKS = [   // movable chairs, straight rows; c = block direction (deg), lo/hi = aisle lines
+  { c: 0, lo: -17.5, hi: 17.5, rows: [41.25, 44.75, 48.0, 51.25, 54.25, 57.25, 60.25] },
+  { c: -38, lo: -52, hi: -24, rows: [43.0, 46.25, 49.25, 52.5, 55.25, 58.0, 61.25] },
+  { c: 38, lo: 24, hi: 52, rows: [43.0, 46.25, 49.25, 52.5, 55.25, 58.0, 61.25] },
+  { c: -69, lo: -69.25, hi: -58.5, rows: [47.5, 50.5, 53.25, 56.0] },   // wall-side half left open
+  { c: 69, lo: 58.5, hi: 69.25, rows: [47.5, 50.5, 53.25, 56.0] },
+];
+const FLOOR_MAX_R = 63.6;   // keeps the last chair backs clear of the first slope row
+// Slope seating, fitted to the 2026 seat map: 201 46, 202 77, 203 63, 204 54 (mirrored for 205–208, 480 total).
+// 19½" seats, 3' aisles; 204/205 meet on the centerline with no aisle; 201 and 208 are half the 2016 angle.
+const SLOPE = { rows: [65.9, 68.95, 72.0, 75.05, 78.1, 81.15], aisles: [-53, -33.75, -17.5, 17.5, 33.75, 53], splits: [0], limit: 65.5, seatW: 1.625, aisleHalf: 1.5 };
+const FOH = { front: 73.5, back: 82.0, half: 11.0 };   // level production platform in the back three rows of 204/205
+const CAM = { front: 96.3, back: 106.0, half: 4.7 };   // camera bay cut into the balcony front, center (A1.01)
+const BALC_AISLES = [-58, -46, -27, -8, 8, 27, 46, 58];
+const SEAT_W = 1.75;      // 21" theater seats
+const CHAIR_PITCH = 1.8;  // movable chairs
+const EYE = 3.85;         // seated eye height above the floor
+
+/* =====================================================================================
+   2. SCREENS. Sizes from the Solotech quotes (ROE JT3.1, SQ-35382, 1 Jul 2026) and the ROE
+   calculator exports (29 Jun 2026). The existing wall size comes from the Zoe 2026 content
+   specs (3840 × 990 = 50 × 13 ft). Placements are estimates until the trims are set.
+   ===================================================================================== */
+const M2FT = 1 / 0.3048;
+const SPEC = {
+  // Today's wall (Brian, 15 Oct): 3840 × 990 px at 4 mm = 15.36 × 3.96 m, directly below the beam in the opening
+  existing: { key: 'existing', name: 'Existing LED wall', w: 3840 * 0.004 * M2FT, h: 990 * 0.004 * M2FT, px: [3840, 990], pitch: 4, grid: null },
+  center: { key: 'center', name: 'Screen 1', w: 18 * M2FT, h: 7.5 * M2FT, px: [5760, 2400], grid: [36, 7.5], lb: 6566, kw: 75.6 },
+  side: { key: 'side', name: 'Screens 2 + 3', w: 9 * M2FT, h: 7.5 * M2FT, px: [2880, 2400], grid: [18, 7.5], lb: 3290, kw: 37.8 },
+};
+const DEFAULTS = {
+  exTrim: 0,                                    // existing wall stands on the deck (June photo), centered under the beam
+  // Working layout Brian set on 15 Oct 2026; on 17 Oct Screen 1 moved 1' downstage and the side screens were reset
+  cTrim: 0, cUp: 5.0,                           // Screen 1 at stage level (fixed), hanging from its truss 5' upstage of the beam
+  sOff: 50.0, sTrim: 0, sDown: 9.25, sToe: 18,  // side screens; all three new screens sit at stage level (fixed)
+  keysX: 8.0, keysY: 24.0,                      // band risers: front edge downstage of the beam, center off the centerline
+  drumsX: 8.0, drumsY: 24.0,
+};
+const P = { ...DEFAULTS };
+const EXISTING_X = (S.header.x0 + S.header.x1) / 2 - 0.15;   // today's wall: centered directly below the beam
+
+// Trusses from Brian's top-down rigging sketch (15 Oct 2026), scaled at 18.7 px/ft from its 70' truss.
+// x = plan distance upstage of F; y0..y1 = ends; picks = hang points (600 lb each). The sketch gives no
+// heights, so trims (bottom of truss above the deck) start just above Screen 1. Everything upstage of the
+// beam sits 1' downstage of the sketch (Brian, 17 Oct).
+const TRUSSES = [
+  // Screen 1 hangs on this truss, so it rides just above the screen and moves with Screen 1's sliders
+  { id: 't70', name: 'Screen 1 truss', x: 5.26, y0: -35, y1: 35, picks: [-30.32, -22.74, -15.16, -7.58, 0, 7.58, 15.16, 22.74, 30.32], trim: 25.75, follows: true },
+  // trims below are the working layout Brian set on 15 Oct
+  { id: 't60', name: '60′ truss', x: 3.71, y0: -30, y1: 30, picks: [-22.74, -7.58, 7.58, 22.74], trim: 26.0, level: true },   // never angled: one slider
+  { id: 'tul', name: '20′ upstage, house left', x: 1.09, y0: -32.9, y1: -12.95, picks: [-30.32, -15.16], trim: 27.0 },
+  { id: 'tur', name: '20′ upstage, house right', x: 1.09, y0: 12.95, y1: 32.9, picks: [15.16, 30.32], trim: 27.0 },
+  { id: 'tdl', name: '20′ downstage, house left', x: -4.9, y0: -36.15, y1: -16.2, picks: [-33.65, -18.7], trim: 28.0 },
+  { id: 'tdr', name: '20′ downstage, house right', x: -4.9, y0: 16.2, y1: 36.15, picks: [18.7, 33.65], trim: 28.0 },
+];
+const TRIM0 = Object.fromEntries(TRUSSES.map(t => [t.id, t.picks.map(() => t.trim)]));
+const TRIM = structuredClone(TRIM0);
+const HANG_LB = 600;
+const SCREEN_TRUSS_GAP = 0.65;   // hang bars: truss bottom 7¾" above Screen 1's top
+const SCREEN_TRUSS_BACK = 0.37;  // truss center sits just upstage of the screen face
+
+/* ---------- Helpers ---------- */
+const DEG = Math.PI / 180;
+const Y0 = 280;                                                     // world y = 0 at the first-floor datum
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
+const W = (x, y, el) => new THREE.Vector3(y, el - Y0, -x);          // plan (x, y) + elevation -> world
+const roofEl = x => S.roofAtBack + (S.backWall - x) * S.roofSlope;
+const atPolar = (r, phi) => [-r * Math.cos(phi * DEG), r * Math.sin(phi * DEG)];   // phi 0 = centerline, + = house right
+const floorEl = r => r <= S.slopeIn ? S.low : r >= S.slopeOut ? S.firstFloor
+  : S.low + (r - S.slopeIn) / (S.slopeOut - S.slopeIn) * (S.firstFloor - S.low);
+function ftIn(v) {
+  const neg = v < 0;
+  let q = Math.round(Math.abs(v) * 48);              // quarter inches
+  const f = Math.floor(q / 48); q -= f * 48;
+  const i = Math.floor(q / 4), fr = ['', '¼', '½', '¾'][q % 4];
+  return `${neg ? '−' : ''}${f}′-${i}${fr}″`;
+}
+const ftR = v => `${Math.round(v)}′`;
+const m2 = v => `${(v * 0.3048).toFixed(2)} m`;
+const elev = el => ftIn(el);                          // project elevation, e.g. 308′-4″
+const put = (k, s) => document.querySelectorAll(`[data-k="${k}"]`).forEach(e => { e.textContent = s; });
+
+/* ---------- Room outline (inside face of the walls) ---------- */
+const ROOM = (() => {
+  const H = S.houseHalf, J = S.jamb, A = S.prosc, [[nx0, ny0], [nx1]] = S.neWall;
+  const phiW = Math.asin(H / S.rearR), xW = -Math.sqrt(S.rearR ** 2 - H ** 2);
+  const pts = [[S.backWall, -S.stageHalf], [J.x1, -S.stageHalf], [J.x1, -J.half], [A, -J.half], [A, ny0], [nx0, ny0], [nx1, -H], [xW, -H]];
+  for (let i = 1; i < 60; i++) { const a = -phiW + 2 * phiW * i / 60; pts.push([-S.rearR * Math.cos(a), S.rearR * Math.sin(a)]); }
+  pts.push([xW, H], [nx1, H], [nx0, -ny0], [A, -ny0], [A, J.half], [J.x1, J.half], [J.x1, S.stageHalf], [S.backWall, S.stageHalf]);
+  return pts;
+})();
+function inside(x, y, poly = ROOM) {
+  let c = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [xi, yi] = poly[i], [xj, yj] = poly[j];
+    if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c;
+  }
+  return c;
+}
+function edgeDist(x, y, poly = ROOM) {
+  let best = Infinity;
+  for (let i = 0; i < poly.length; i++) {
+    const [ax, ay] = poly[i], [bx, by] = poly[(i + 1) % poly.length];
+    const ex = bx - ax, ey = by - ay, L = ex * ex + ey * ey;
+    const t = L ? Math.max(0, Math.min(1, ((x - ax) * ex + (y - ay) * ey) / L)) : 0;
+    best = Math.min(best, Math.hypot(x - ax - t * ex, y - ay - t * ey));
+  }
+  return best;
+}
+const insideBy = (x, y, m) => inside(x, y) && edgeDist(x, y) >= m;
+function rayHit(dx, dy, poly = ROOM) {   // distance from F along (dx, dy) to the first wall
+  let best = Infinity;
+  for (let i = 0; i < poly.length; i++) {
+    const [ax, ay] = poly[i], [bx, by] = poly[(i + 1) % poly.length];
+    const ex = bx - ax, ey = by - ay, den = dx * ey - dy * ex;
+    if (Math.abs(den) < 1e-9) continue;
+    const t = (ax * ey - ay * ex) / den, s = (ax * dy - ay * dx) / den;
+    if (t > 0.01 && s >= 0 && s <= 1 && t < best) best = t;
+  }
+  return best;
+}
+function rArc(phi) {                     // distance from F to the platform lip along phi
+  const dx = -Math.cos(phi * DEG), b = S.platform.cx * dx;
+  return b + Math.sqrt(b * b - S.platform.cx ** 2 + S.platform.r ** 2);
+}
+
+/* ---------- Renderer, cameras, controls ---------- */
+// Local render switches (?shot, ?shot&bare). The published page never sees a query string.
+const params = new URLSearchParams(location.search);
+const SHOT = params.has('shot');
+const BARE = SHOT && params.has('bare');
+if (SHOT) document.documentElement.classList.add('shot');
+if (BARE) document.documentElement.classList.add('bare');
+if (params.has('light')) document.documentElement.dataset.theme = 'light';
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const DESIGNER = document.documentElement.classList.contains('designer');   // set by the designer copy
+
+const host = document.getElementById('viewport');
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: SHOT });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+host.appendChild(renderer.domElement);
+const labels = new CSS2DRenderer();
+labels.domElement.className = 'labels';
+host.appendChild(labels.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0e1012);
+const persp = new THREE.PerspectiveCamera(32, 1, 0.5, 2000);
+const ortho = new THREE.OrthographicCamera(-1, 1, 1, -1, 1, 2000);
+let camera = persp;
+const controls = new OrbitControls(persp, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.09;
+controls.zoomToCursor = true;
+controls.minZoom = 0.5;
+controls.maxZoom = 20;
+const sectionClip = new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0.02);   // keeps house left (world x ≤ 0)
+
+/* ---------- Light: work-light level, so the geometry reads ---------- */
+scene.add(new THREE.HemisphereLight(0xdfe4ec, 0x4a4238, 1.7));
+const key = new THREE.DirectionalLight(0xffffff, 1.35);
+key.position.set(-120, 160, 220);
+const fill = new THREE.DirectionalLight(0xc9d6ff, 0.45);
+fill.position.set(160, 60, -60);
+scene.add(key, fill);
+
+/* ---------- Materials ---------- */
+const mat = (color, o = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.92, metalness: 0, ...o });
+const M = {
+  base: mat(0x57544f),
+  lowFloor: mat(0x7c7a75, { roughness: 0.75 }),
+  carpet: mat(0x4b4e56),
+  riser: mat(0x393c43),
+  houseWall: mat(0x4a4e56),
+  stageWall: mat(0x0f1012),   // near black from side screen to side screen: stage house, jambs, header,
+  prosc: mat(0x0f1012),       // the walls flanking the opening and the angled walls behind the side screens
+  ceiling: mat(0x1b1c1f, { side: THREE.BackSide }),
+  joist: mat(0x26282b, { roughness: 0.7, metalness: 0.2 }),
+  deck: mat(0x303236, { roughness: 0.55 }),
+  fascia: mat(0x1b1c1f),
+  seatT: mat(0x56637f, { roughness: 0.85 }),
+  chair: mat(0x8a94a6, { roughness: 0.8 }),
+  cam: mat(0x1d1f22, { roughness: 0.5, metalness: 0.3 }),
+  pa: mat(0x161719, { roughness: 0.6 }),
+  riserBox: mat(0x2b2c30),
+  bandRiser: mat(0x131417, { roughness: 0.95 }),   // well under the deck, so the risers read against the stage floor
+  truss: mat(0x59606a, { roughness: 0.45, metalness: 0.55 }),
+  person: mat(0x9aa4b1, { roughness: 0.85 }),
+  cabinet: mat(0x101113, { roughness: 0.5, metalness: 0.2 }),
+  desk: mat(0x2f3135),
+};
+
+/* ---------- Geometry helpers ---------- */
+const shapeOf = pts => new THREE.Shape(pts.map(([x, y]) => new THREE.Vector2(y, x)));
+function extrudePlan(pts, el0, el1, mats, holes = []) {
+  const shape = shapeOf(pts);
+  for (const h of holes) shape.holes.push(new THREE.Path(h.map(([x, y]) => new THREE.Vector2(y, x))));
+  const g = new THREE.ExtrudeGeometry(shape, { depth: el1 - el0, bevelEnabled: false, curveSegments: 1 });
+  g.rotateX(-Math.PI / 2);
+  g.translate(0, el0 - Y0, 0);
+  const m = new THREE.Mesh(g, mats);
+  scene.add(m);
+  return m;
+}
+function boxPlan(x0, x1, y0, y1, el0, el1, material, parent = scene) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(Math.abs(y1 - y0), el1 - el0, Math.abs(x1 - x0)), material);
+  m.position.copy(W((x0 + x1) / 2, (y0 + y1) / 2, (el0 + el1) / 2));
+  parent.add(m);
+  return m;
+}
+function flatPlan(pts, elOf, material) {          // flat outline, vertices lifted to elOf(x)
+  const g = new THREE.ShapeGeometry(shapeOf(pts));
+  g.rotateX(-Math.PI / 2);
+  const p = g.attributes.position;
+  for (let i = 0; i < p.count; i++) p.setY(i, elOf(-p.getZ(i)) - Y0);
+  g.computeVertexNormals();
+  const m = new THREE.Mesh(g, material);
+  scene.add(m);
+  return m;
+}
+// Ring sector about F between radii r0 and r1, cut by the straight lines y = yLo and y = yHi
+// (by default the house walls)
+function sector(r0, r1, yLo = -S.houseHalf, yHi = S.houseHalf) {
+  const lim = (y, r) => Math.asin(Math.max(-1, Math.min(1, y / r)));
+  const a0 = lim(yLo, r0), b0 = lim(yHi, r0), a1 = lim(yLo, r1), b1 = lim(yHi, r1);
+  const n0 = Math.max(4, Math.ceil((b0 - a0) / DEG)), n1 = Math.max(4, Math.ceil((b1 - a1) / DEG)), pts = [];
+  for (let i = 0; i <= n0; i++) { const a = a0 + (b0 - a0) * i / n0; pts.push([-r0 * Math.cos(a), r0 * Math.sin(a)]); }
+  for (let i = n1; i >= 0; i--) { const a = a1 + (b1 - a1) * i / n1; pts.push([-r1 * Math.cos(a), r1 * Math.sin(a)]); }
+  return pts;
+}
+
+/* =====================================================================================
+   3. THE ROOM
+   ===================================================================================== */
+// Base slab under everything, so no gap ever shows the void
+flatPlan(ROOM, () => S.low - 0.06, M.base);
+
+// House floor: flat low floor, the 1:11 rise under the slope seating, then the cross aisle
+{
+  const phis = [];
+  for (let p = -87.5; p <= 87.5001; p += 0.5) phis.push(p);
+  const NR = 80, pos = [], idx = [];
+  for (const p of phis) {
+    const dx = -Math.cos(p * DEG), dy = Math.sin(p * DEG);
+    const r0 = rArc(p), r1 = Math.max(r0 + 0.05, Math.min(S.balcony.front + 0.3, rayHit(dx, dy)));
+    for (let j = 0; j < NR; j++) {
+      const r = r0 + (r1 - r0) * j / (NR - 1);
+      const v = W(r * dx, r * dy, floorEl(r) + 0.005);
+      pos.push(v.x, v.y, v.z);
+    }
+  }
+  for (let i = 0; i < phis.length - 1; i++) for (let j = 0; j < NR - 1; j++) {
+    const a = i * NR + j, b = a + 1, c = a + NR, d = c + 1;
+    idx.push(a, b, c, b, d, c);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  if (g.attributes.normal.getY(0) < 0) { g.index.array.reverse(); g.computeVertexNormals(); }
+  scene.add(new THREE.Mesh(g, M.lowFloor));
+}
+
+// Walls: one inward-facing quad per edge, from below the low floor to the roof deck.
+// Faces point into the room, so from outside the near walls drop away (a cut-away model).
+{
+  const area = ROOM.reduce((s, p, i) => { const q = ROOM[(i + 1) % ROOM.length]; return s + p[0] * q[1] - q[0] * p[1]; }, 0);
+  const buckets = { house: [], stage: [], prosc: [] };
+  for (let i = 0; i < ROOM.length; i++) {
+    const a = ROOM[i], b = ROOM[(i + 1) % ROOM.length];
+    const ex = b[0] - a[0], ey = b[1] - a[1];
+    const n = area > 0 ? [-ey, ex] : [ey, -ex];              // inward normal, plan coords
+    const kind = (a[0] >= -0.35 && b[0] >= -0.35) ? 'stage' : (Math.max(a[0], b[0]) > -6 && Math.min(Math.abs(a[1]), Math.abs(b[1])) >= 42) ? 'prosc' : 'house';
+    const A0 = W(a[0], a[1], S.low - 0.1), B0 = W(b[0], b[1], S.low - 0.1);
+    const A1 = W(a[0], a[1], roofEl(a[0])), B1 = W(b[0], b[1], roofEl(b[0]));
+    const nW = V(n[1], 0, -n[0]);
+    const tri = [A0, B0, B1, A0, B1, A1];
+    const cr = new THREE.Vector3().subVectors(B0, A0).cross(new THREE.Vector3().subVectors(B1, A0));
+    if (cr.dot(nW) < 0) tri.splice(0, 6, A0, B1, B0, A0, A1, B1);
+    for (const v of tri) buckets[kind].push(v.x, v.y, v.z);
+  }
+  for (const [kind, arr] of Object.entries(buckets)) {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(arr, 3));
+    g.computeVertexNormals();
+    scene.add(new THREE.Mesh(g, kind === 'stage' ? M.stageWall : kind === 'prosc' ? M.prosc : M.houseWall));
+  }
+}
+
+// Platform: curved lip, stair notches at the upstage corners, deck carried through the opening
+const roofGroup = new THREE.Group();   // roof and joists: shown from inside the room (see syncRoof)
+scene.add(roofGroup);
+{
+  const { cx, r } = S.platform, st = S.stairs, J = S.jamb;
+  const th = x => Math.acos((x - cx) / r);
+  const arc = (t0, t1, n) => Array.from({ length: n + 1 }, (_, i) => { const t = t0 + (t1 - t0) * i / n; return [cx + r * Math.cos(t), r * Math.sin(t)]; });
+  const T = 2 * Math.PI;
+  const outline = [
+    [S.backWall, -S.stageHalf], [J.x1, -S.stageHalf],
+    ...arc(-th(J.x1), -th(st.x1), 3),
+    [st.x1, -st.yIn], [st.x0, -st.yIn],
+    ...arc(-th(st.x0), -T + th(st.x0), 180),
+    [st.x0, st.yIn], [st.x1, st.yIn],
+    ...arc(-T + th(st.x1), -T + th(J.x1), 3),
+    [J.x1, S.stageHalf], [S.backWall, S.stageHalf],
+  ];
+  extrudePlan(outline, S.low, S.deck, [M.deck, M.fascia]);
+  // Stairs: four risers of 9" from the deck to the house floor
+  for (const sg of [-1, 1]) for (let i = 0; i < 4; i++) {
+    const y0 = st.yIn + i * (st.yOut - st.yIn) / 4, y1 = st.yIn + (i + 1) * (st.yOut - st.yIn) / 4;
+    boxPlan(st.x0, st.x1, sg * y0, sg * y1, S.low, S.deck - 0.75 * (i + 1), M.deck);
+  }
+}
+
+// Header over the platform opening, and the jambs
+boxPlan(S.header.x0, S.header.x1, -S.jamb.half, S.jamb.half, S.header.el, roofEl(S.header.x0), M.prosc);
+
+// Ceiling (underside of roof deck) and open-web joists, seen from inside the room only
+{
+  const g = new THREE.ShapeGeometry(shapeOf(ROOM));
+  g.rotateX(-Math.PI / 2);
+  const p = g.attributes.position;
+  for (let i = 0; i < p.count; i++) p.setY(i, roofEl(-p.getZ(i)) - Y0);
+  g.computeVertexNormals();
+  roofGroup.add(new THREE.Mesh(g, M.ceiling));
+  const slope = Math.atan(S.roofSlope);
+  for (let y = -87; y <= 87.01; y += 6) {
+    const xw = -Math.sqrt(S.rearR ** 2 - y * y);
+    const ay = Math.abs(y);
+    const xe = ay <= S.stageHalf - 0.5 ? S.backWall : ay <= 63.6 ? S.prosc : S.neWall[0][0] + (S.neWall[1][0] - S.neWall[0][0]) * (ay - 63.6) / (S.houseHalf - 63.6);
+    const L = xe - xw, xm = (xe + xw) / 2;
+    const j = new THREE.Mesh(new THREE.BoxGeometry(0.35, 3.2, L), M.joist);
+    j.position.copy(W(xm, y, roofEl(xm) - 1.75));
+    j.rotation.x = -slope;
+    roofGroup.add(j);
+  }
+}
+
+// Balcony: parapet, front walkway, nine seated rows on 3'-1¾" treads with 14" risers, then a top landing.
+// The camera bay cuts through the parapet, the walkway and the first two rows at the center.
+{
+  const B = S.balcony, H = S.houseHalf, c = CAM.half, rowEl = k => B.row0El + B.rise * k;
+  const both = (r0, r1, el, mats) => {
+    extrudePlan(sector(r0, r1, -H, -c), S.firstFloor, el, mats);
+    extrudePlan(sector(r0, r1, c, H), S.firstFloor, el, mats);
+  };
+  both(B.front, B.front + B.parapet, B.parapetTop, [M.riser, M.riser]);
+  both(B.front + B.parapet, B.first, B.walkEl, [M.carpet, M.riser]);
+  for (let k = 0; k < B.rows; k++) {
+    const r0 = B.first + B.pitch * k, r1 = k === B.rows - 1 ? S.rearR : r0 + B.pitch;
+    if (r1 <= CAM.back) both(r0, r1, rowEl(k), [M.carpet, M.riser]);
+    else if (r0 < CAM.back) {       // the row the bay ends in: notched in front of the bay's back wall
+      both(r0, CAM.back, rowEl(k), [M.carpet, M.riser]);
+      extrudePlan(sector(CAM.back, r1), S.firstFloor, rowEl(k), [M.carpet, M.riser]);
+    } else extrudePlan(sector(r0, r1), S.firstFloor, rowEl(k), [M.carpet, M.riser]);
+  }
+  // Camera bay floor at the cross aisle, open to it, and two cameras on tall pedestals (heights estimated)
+  boxPlan(-CAM.back, -(B.front + 0.3), -c, c, S.firstFloor - 0.4, S.firstFloor, M.carpet);
+  for (const sg of [-1, 1]) {
+    const g = new THREE.Group();
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.4, 5.5, 10), M.cam);
+    post.position.y = 2.75;
+    const head = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.9, 2.0), M.cam);
+    head.position.y = 6.0;
+    const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 1.4, 14).rotateX(Math.PI / 2), M.cam);
+    lens.position.set(0, 6.0, -1.6);
+    g.add(post, head, lens);
+    g.position.copy(W(-100.5, sg * 2.3, S.firstFloor));
+    scene.add(g);
+  }
+}
+
+// FOH: a level production platform in the back four rows of 204/205, flush with the cross aisle
+boxPlan(-FOH.back, -FOH.front, -FOH.half, FOH.half, S.low, S.firstFloor, M.riserBox);
+boxPlan(-FOH.front - 0.5, -FOH.front, -FOH.half, FOH.half, S.firstFloor, S.firstFloor + 2.5, M.riser);   // front rail wall
+boxPlan(-77.0, -75.0, -8.5, 8.5, S.firstFloor, S.firstFloor + 3.2, M.desk);                         // mix desk
+
+const rigGroup = new THREE.Group();   // flown production gear
+scene.add(rigGroup);
+
+// Main PA: left/right arrays plus side hangs (positions from the June photo, heights confirmed by Brian).
+// Grilles face the house (+z); each box tilts a little further down, so the array curls upstage at the bottom.
+{
+  const grille = mat(0x34383e, { roughness: 0.95 });
+  const hang = (x, y, n, yaw, w, h, d) => {
+    const g = new THREE.Group(), geo = new THREE.BoxGeometry(w, h, d), mats = [M.pa, M.pa, M.pa, M.pa, grille, M.pa];
+    for (let i = 0; i < n; i++) {
+      const b = new THREE.Mesh(geo, mats);
+      b.position.set(0, -i * 1.12, -0.012 * i * i);
+      b.rotation.x = 0.02 * i;
+      g.add(b);
+    }
+    g.position.copy(W(x, y, 316.5));
+    g.rotation.y = yaw;
+    rigGroup.add(g);
+  };
+  hang(-22.5, -26.5, 10, 0, 4.3, 1.1, 3.3);
+  hang(-22.5, 26.5, 10, 0, 4.3, 1.1, 3.3);
+  hang(-18, -31, 7, -22 * DEG, 3.2, 1.0, 2.6);   // side hangs, 10' in toward center from the photo read; aimed out to the sides
+  hang(-18, 31, 7, 22 * DEG, 3.2, 1.0, 2.6);
+}
+
+/* =====================================================================================
+   4. SEATS (instanced)
+   ===================================================================================== */
+const seats = [];   // { x, y, el, rot, kind, tier }
+for (const b of FLOOR_BLOCKS) {
+  const u = [-Math.cos(b.c * DEG), Math.sin(b.c * DEG)], v = [Math.sin(b.c * DEG), Math.cos(b.c * DEG)];
+  for (const d of b.rows) {
+    const s0 = d * Math.tan((b.lo - b.c) * DEG), s1 = d * Math.tan((b.hi - b.c) * DEG);
+    const n = Math.floor((s1 - s0 - 1.0) / CHAIR_PITCH) + 1;
+    const start = (s0 + s1) / 2 - (n - 1) * CHAIR_PITCH / 2;
+    for (let i = 0; i < n; i++) {
+      const s = start + i * CHAIR_PITCH, x = d * u[0] + s * v[0], y = d * u[1] + s * v[1], r = Math.hypot(x, y);
+      if (r > FLOOR_MAX_R || !insideBy(x, y, 1.5)) continue;
+      seats.push({ x, y, el: floorEl(r), rot: b.c * DEG, kind: 'chair', tier: 'floor' });
+    }
+  }
+}
+// One arc row of fixed seats: aisles get aisleHalf of clearance each side, splits are section seams with none
+function arcRow(r, el, aisles, limit, tier, { skip = () => false, seatW = SEAT_W, aisleHalf = 2.0, splits = [], margin = 1.5 } = {}) {
+  const inner = [...aisles.map(a => [a, aisleHalf]), ...splits.map(a => [a, 0])].filter(([a]) => Math.abs(a) < limit).sort((p, q) => p[0] - q[0]);
+  const cuts = [[-limit, margin], ...inner, [limit, margin]];
+  for (let i = 0; i < cuts.length - 1; i++) {
+    const a0 = cuts[i][0] * DEG * r + cuts[i][1], a1 = cuts[i + 1][0] * DEG * r - cuts[i + 1][1];   // arc-length positions
+    const n = Math.floor((a1 - a0) / seatW + 1e-9);
+    if (n < 1) continue;
+    const mid = (a0 + a1) / 2;
+    for (let k = 0; k < n; k++) {
+      const s = mid + (k - (n - 1) / 2) * seatW, phi = s / r / DEG;
+      const [x, y] = atPolar(r, phi);
+      if (!insideBy(x, y, 1.2) || skip(x, y)) continue;
+      seats.push({ x, y, el, rot: phi * DEG, kind: 'theater', tier });
+    }
+  }
+}
+for (const r of SLOPE.rows) arcRow(r, floorEl(r), SLOPE.aisles, SLOPE.limit, 'slope', {
+  skip: (x, y) => r > FOH.front && Math.abs(y) < FOH.half + 0.9, seatW: SLOPE.seatW, aisleHalf: SLOPE.aisleHalf, splits: SLOPE.splits });
+for (let k = 0; k < S.balcony.seatedRows; k++) {
+  const r = S.balcony.first + S.balcony.pitch * k + 1.5;
+  arcRow(r, S.balcony.row0El + S.balcony.rise * k, BALC_AISLES, Math.asin((S.houseHalf - 1.2) / r) / DEG, 'balcony',
+    { skip: (x, y) => r < CAM.back + 0.8 && Math.abs(y) < CAM.half + 1.0 });
+}
+if (params.has('debug')) window.__seats = seats;   // local checks only; the published page never sees a query string
+{
+  const bx = (w, h, d, x, y, z, rx = 0) => new THREE.BoxGeometry(w, h, d).rotateX(rx).translate(x, y, z);
+  const theater = mergeGeometries([
+    bx(1.5, 0.28, 1.45, 0, 1.42, -0.15),             // seat
+    bx(1.5, 1.85, 0.24, 0, 2.5, 0.62, 0.2),         // back, raked
+    bx(0.14, 2.15, 1.7, 0.82, 1.08, 0.1),           // standards
+    bx(0.14, 2.15, 1.7, -0.82, 1.08, 0.1),
+  ]);
+  const chair = mergeGeometries([
+    bx(1.45, 0.16, 1.45, 0, 1.5, 0),
+    bx(1.45, 1.2, 0.14, 0, 2.45, 0.68, 0.12),
+    ...[[-0.64, -0.62], [0.64, -0.62], [-0.64, 0.62], [0.64, 0.62]].map(([x, z]) => bx(0.08, 1.5, 0.08, x, 0.75, z)),
+  ]);
+  const T = seats.filter(s => s.kind === 'theater'), C = seats.filter(s => s.kind === 'chair');
+  const iT = new THREE.InstancedMesh(theater, M.seatT, T.length), iC = new THREE.InstancedMesh(chair, M.chair, C.length);
+  const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), one = V(1, 1, 1), up = V(0, 1, 0);
+  T.forEach((s, i) => iT.setMatrixAt(i, m4.compose(W(s.x, s.y, s.el), q.setFromAxisAngle(up, s.rot), one)));
+  C.forEach((s, i) => iC.setMatrixAt(i, m4.compose(W(s.x, s.y, s.el), q.setFromAxisAngle(up, s.rot), one)));
+  scene.add(iT, iC);
+}
+const eyes = seats.map(s => W(s.x, s.y, s.el + EYE));
+const tierCount = t => seats.filter(s => s.tier === t).length;
+
+// IMAG cameras (Brian, 17 Oct). Each frames a 5'-10" presenter standing on the centerline 6' upstage of the lip, in a
+// 16:9 frame. Center: the balcony camera platform, lens at the presenter's eye height. Four more stand on the cross
+// aisle 2' behind slope sections 201, 203, 206 and 208, lenses 18" lower. A floor camera stands stage left on the
+// house floor, just off the stage edge, on the same pedestal height. Zoom sets the frame height at the presenter, from
+// a head-and-shoulders close-up out to head to toe (center) or a 55° wide shot (the rest); up to head to toe the tilt
+// keeps the top of the head a tenth of the frame below the top edge, an operator's headroom, and wider shots hold that
+// aim. Every camera pans 15° each way; all but the center also tilt 10° either way off their framing.
+const PRESENTER = { x: S.platform.cx - S.platform.r + 6, eye: 65.5 / 12, head: 70 / 12 };   // plan x; heights above the deck
+const CAM_ASPECT = 16 / 9, CLOSE_UP = 18 / 12, HEAD_TO_TOE = 84 / 12, SIDE_WIDE = 55;
+function imagCamera(key, label, where, [x, y], floorEl, lensEl, sides) {
+  const dx = PRESENTER.x - x, dy = -y, dist = Math.hypot(dx, dy);
+  const frameMax = sides ? 2 * dist * Math.tan(SIDE_WIDE / 2 * DEG) / CAM_ASPECT : HEAD_TO_TOE;
+  return { key, label, where, x, y, floor: floorEl, lens: lensEl - S.deck, dist, yaw: Math.atan2(dy, dx), frameMax, tilts: sides, frameH: 35.25 / 12, pan: 0, tilt: 0 };
+}
+const CAM_CENTER_EL = S.deck + PRESENTER.eye, CAM_SIDE_EL = CAM_CENTER_EL - 1.5, CAM_SIDE_R = S.slopeOut + 2, CAM_PEDESTAL = CAM_SIDE_EL - S.firstFloor;
+const FLOOR_CAM = (() => {   // halfway along the stage's curved edge from center to where it meets the stage-left wall, 2½' out
+  const { cx, r } = S.platform, end = Math.atan2(Math.sqrt(r * r - (cx - S.jamb.x0) ** 2), S.jamb.x0 - cx), a = (Math.PI + end) / 2;
+  return [cx + (r + 2.5) * Math.cos(a), (r + 2.5) * Math.sin(a)];
+})();
+const CAMS = [   // house left to house right, then the floor camera; the side cameras stand behind their sections' centers
+  imagCamera('camFL', 'Far left', 'Far-left camera on the cross aisle behind section 201, lens 18″ below the center camera', atPolar(CAM_SIDE_R, -59.25), S.firstFloor, CAM_SIDE_EL, true),
+  imagCamera('camL', 'Left', 'Left camera on the cross aisle behind section 203, lens 18″ below the center camera', atPolar(CAM_SIDE_R, -25.6), S.firstFloor, CAM_SIDE_EL, true),
+  imagCamera('cam', 'Center', 'Center camera at the balcony platform, lens at the eye height of the 5′10″ presenter (center stage, 6′ from the edge)', [-100.5, 0], S.firstFloor, CAM_CENTER_EL, false),
+  imagCamera('camR', 'Right', 'Right camera on the cross aisle behind section 206, lens 18″ below the center camera', atPolar(CAM_SIDE_R, 25.6), S.firstFloor, CAM_SIDE_EL, true),
+  imagCamera('camFR', 'Far right', 'Far-right camera on the cross aisle behind section 208, lens 18″ below the center camera', atPolar(CAM_SIDE_R, 59.25), S.firstFloor, CAM_SIDE_EL, true),
+  imagCamera('camFloor', 'Floor', 'Floor camera stage left (house right), on the house floor 2½′ off the stage edge, lens 5′-4½″ up', FLOOR_CAM, S.low, S.low + CAM_PEDESTAL, true),
+];
+function camAim(c) {   // radians: tilt (negative is down), the frame's vertical half-angle, yaw (positive toward house right)
+  const h = Math.min(c.frameH, HEAD_TO_TOE), top = PRESENTER.head + 0.1 * h;
+  const a1 = Math.atan((top - c.lens) / c.dist), a2 = Math.atan((top - h - c.lens) / c.dist);
+  const half = c.frameH > HEAD_TO_TOE ? Math.atan(c.frameH / 2 / c.dist) : (a1 - a2) / 2;
+  return { tilt: (a1 + a2) / 2 + c.tilt * DEG, half, yaw: c.yaw + c.pan * DEG };
+}
+const camAxis = ({ tilt, yaw }) => V(Math.sin(yaw) * Math.cos(tilt), Math.sin(tilt), -Math.cos(yaw) * Math.cos(tilt));
+const camEye = c => W(c.x, c.y, S.deck + c.lens);
+
+// The side and floor cameras on pedestals, aimed at the presenter (the center camera's platform pair is modeled with
+// the balcony)
+for (const c of CAMS.filter(k => k.tilts)) {
+  const g = new THREE.Group(), h = S.deck + c.lens - c.floor;
+  const post = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.4, h - 0.45, 10), M.cam);
+  post.position.y = (h - 0.45) / 2;
+  const head = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.9, 2.0), M.cam);
+  head.position.y = h;
+  const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 1.4, 14).rotateX(Math.PI / 2), M.cam);
+  lens.position.set(0, h, -1.6);
+  g.add(post, head, lens);
+  g.position.copy(W(c.x, c.y, c.floor));
+  g.rotation.y = -c.yaw;
+  scene.add(g);
+}
+
+// The presenter in that shot: 5'-10", shaped enough (shoulders, arms, head) to read in a waist-up frame
+{
+  const g = new THREE.Group();
+  const add = (geo, y, x = 0, rz = 0) => { const m = new THREE.Mesh(geo, M.person); m.position.set(x, y, 0); m.rotation.z = rz; g.add(m); return m; };
+  for (const s of [-1, 1]) {
+    add(new THREE.CapsuleGeometry(0.23, 2.42, 4, 10), 1.6, s * 0.32);              // legs, ankle to hip
+    add(new THREE.CapsuleGeometry(0.16, 1.86, 4, 10), 3.45, s * 0.74, s * 0.06);    // arms at the sides
+  }
+  add(new THREE.CylinderGeometry(0.62, 0.5, 1.8, 20), 3.85).scale.z = 0.62;        // torso, hips to chest
+  add(new THREE.CapsuleGeometry(0.27, 1.02, 4, 12), 4.62, 0, Math.PI / 2);          // shoulders, 19" across
+  add(new THREE.CylinderGeometry(0.19, 0.21, 0.42, 14), 4.92);                       // neck
+  add(new THREE.SphereGeometry(0.36, 20, 16), 70 / 12 - 0.4).scale.set(0.85, 1.12, 1);   // head, top at 5'-10"
+  g.position.copy(W(PRESENTER.x, 0, S.deck));
+  scene.add(g);
+}
+
+// People for scale (5'-10")
+{
+  const body = new THREE.CapsuleGeometry(0.55, 3.4, 4, 12), head = new THREE.SphereGeometry(0.42, 16, 12);
+  const person = (x, y, el) => {
+    const g = new THREE.Group();
+    const b = new THREE.Mesh(body, M.person); b.position.y = 2.3;
+    const h = new THREE.Mesh(head, M.person); h.position.y = 5.25;
+    g.add(b, h);
+    g.position.copy(W(x, y, el));
+    scene.add(g);
+  };
+  person(-12, -14, S.deck);
+  person(-2, 25, S.deck + 2.0);
+  person(-79.0, 3.5, S.firstFloor);
+  person(-79.0, -4, S.firstFloor);
+  person(-60, -42, S.low);
+}
+
+/* =====================================================================================
+   5. SCREENS
+   ===================================================================================== */
+// Pixel map: the full map is one 11520 × 2560 PNG for every LED surface. Rectangles are [x, y, w, h] in map
+// pixels and must match make_pixel_map_template.py. Riser wraps are ROE JT3.1 500 mm half panels (160 px each,
+// Solotech quote), five panels on every end and ten across each front. They read left to right as seen from the
+// house and sit centered under Screen 1, keys and drums meeting on its centerline.
+// sizes: the files a designer can load, listed under the drawing in "On the screens". Each is the map cropped to
+// start at map x `x`; a surface fills only when it sits wholly inside the crop, and the rest go dark.
+const PIXMAP = {
+  regions: {
+    left: [0, 0, 2880, 2400], center: [2880, 0, 5760, 2400], right: [8640, 0, 2880, 2400],
+    keysOuter: [2560, 2400, 800, 160], keysFront: [3360, 2400, 1600, 160], keysInner: [4960, 2400, 800, 160],
+    drumsInner: [5760, 2400, 800, 160], drumsFront: [6560, 2400, 1600, 160], drumsOuter: [8160, 2400, 800, 160],
+  },
+  sizes: [
+    { w: 11520, h: 2560, x: 0, fills: 'all three screens and both riser wraps' },
+    { w: 11520, h: 2400, x: 0, fills: 'all three screens' },
+    { w: 6400, h: 2560, x: 2560, fills: 'Screen 1 and both riser wraps' },
+    { w: 5760, h: 2400, x: 2880, fills: 'Screen 1' },
+  ],
+};
+let content = 'layout';
+let showImg = null, showSize = null;   // the loaded file and the PIXMAP.sizes entry it fills
+function drawRegion(ctx, w, h, key) {   // paint one surface's slice of the loaded file, as the processor would
+  const r = content === 'file' && showImg && PIXMAP.regions[key], s = showSize;
+  if (!r) return false;
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, w, h);
+  if (r[0] < s.x || r[0] + r[2] > s.x + s.w || r[1] + r[3] > s.h) return true;   // not in this file: dark
+  const sx = showImg.naturalWidth / s.w, sy = showImg.naturalHeight / s.h;
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(showImg, (r[0] - s.x) * sx, r[1] * sy, r[2] * sx, r[3] * sy, 0, 0, w, h);
+  return true;
+}
+function drawScreen(scr) {
+  const { spec, canvas } = scr, ctx = canvas.getContext('2d'), w = canvas.width, h = canvas.height;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  if (drawRegion(ctx, w, h, scr.region)) { /* pixel-map content */ }
+  else if (content === 'sample') drawSample(ctx, w, h, spec.key);
+  else drawLayout(ctx, w, h, spec, scr.mirror);
+  scr.tex.needsUpdate = true;
+}
+function drawLayout(ctx, w, h, spec, mirror) {
+  ctx.fillStyle = '#07090a'; ctx.fillRect(0, 0, w, h);
+  if (spec.grid) {
+    const [cols, rows] = spec.grid, cw = w / cols, rh = h / rows;
+    ctx.strokeStyle = 'rgba(143, 202, 152, 0.28)'; ctx.lineWidth = Math.max(1, w / 1400);
+    ctx.beginPath();
+    for (let c = 1; c < cols; c++) { ctx.moveTo(c * cw, 0); ctx.lineTo(c * cw, h); }
+    for (let r = 1; r <= Math.floor(rows); r++) { ctx.moveTo(0, r * rh); ctx.lineTo(w, r * rh); }
+    ctx.stroke();
+  }
+  ctx.strokeStyle = spec.key === 'existing' ? 'rgba(242, 196, 109, 0.9)' : 'rgba(143, 202, 152, 0.85)';
+  ctx.lineWidth = Math.max(3, w / 300); ctx.strokeRect(0, 0, w, h);
+  const u = Math.min(w, h * 2.4) / 100;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = spec.key === 'existing' ? '#f2c46d' : '#e8ece6';
+  ctx.font = `900 ${Math.round(u * 7)}px Montserrat, Arial, sans-serif`;
+  const title = spec.key === 'side' ? (mirror < 0 ? 'SCREEN 2' : 'SCREEN 3') : spec.key === 'center' ? 'SCREEN 1' : 'EXISTING LED WALL';
+  ctx.fillText(title, w / 2, h / 2 - u * 6.5);
+  ctx.fillStyle = 'rgba(232, 236, 230, 0.78)';
+  ctx.font = `500 ${Math.round(u * 3.4)}px "IBM Plex Mono", Menlo, monospace`;
+  const size = spec.key === 'existing' ? `15.36 × 3.96 m · ${ftIn(spec.w)} × ${ftIn(spec.h)} · 4 mm` : `${(spec.w * 0.3048).toFixed(1)} × ${(spec.h * 0.3048).toFixed(1)} m · ${ftIn(spec.w)} × ${ftIn(spec.h)}`;
+  ctx.fillText(size, w / 2, h / 2 + u * 2.2);
+  ctx.fillText(`${spec.px[0]} × ${spec.px[1]} px`, w / 2, h / 2 + u * 7.4);
+}
+function drawSample(ctx, w, h, key) {
+  const g = ctx.createLinearGradient(0, 0, w, h);
+  g.addColorStop(0, '#0b2a3a'); g.addColorStop(0.55, '#1f5a52'); g.addColorStop(1, '#c99a4e');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  const glow = ctx.createRadialGradient(w * 0.72, h * 0.3, 0, w * 0.72, h * 0.3, h * 0.9);
+  glow.addColorStop(0, 'rgba(255, 236, 190, 0.55)'); glow.addColorStop(1, 'rgba(255, 236, 190, 0)');
+  ctx.fillStyle = glow; ctx.fillRect(0, 0, w, h);
+  if (key === 'side') {   // IMAG: a speaker framed head and shoulders
+    ctx.fillStyle = 'rgba(12, 14, 16, 0.92)';
+    ctx.beginPath(); ctx.ellipse(w * 0.5, h * 0.42, h * 0.15, h * 0.19, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(w * 0.08, h); ctx.bezierCurveTo(w * 0.12, h * 0.68, w * 0.32, h * 0.62, w * 0.5, h * 0.62);
+    ctx.bezierCurveTo(w * 0.68, h * 0.62, w * 0.88, h * 0.68, w * 0.92, h); ctx.fill();
+    return;
+  }
+  const u = Math.min(w, h * 2.4) / 100;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#ffffff';
+  ctx.font = `900 ${Math.round(u * 11)}px Montserrat, Arial, sans-serif`;
+  ctx.fillText('WELCOME HOME', w / 2, h / 2 - u * 2);
+  ctx.font = `500 ${Math.round(u * 3.2)}px Montserrat, Arial, sans-serif`;
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+  ctx.fillText('THE LIFE CHURCH · HOUSTON LEVEE', w / 2, h / 2 + u * 9);
+}
+function makeScreen(spec, mirror = 0, region = null) {
+  const g = new THREE.Group();
+  const canvas = document.createElement('canvas');
+  const cw = spec.key === 'side' ? 1440 : spec.key === 'center' ? 2880 : 2400;   // half the LED resolution
+  canvas.width = cw; canvas.height = Math.round(cw * spec.h / spec.w);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  const face = new THREE.Mesh(new THREE.PlaneGeometry(spec.w, spec.h), new THREE.MeshBasicMaterial({ map: tex, toneMapped: false }));
+  const back = new THREE.Mesh(new THREE.BoxGeometry(spec.w + 0.15, spec.h + 0.15, 0.3), M.cabinet);
+  back.position.z = -0.16;
+  g.add(face, back);
+  scene.add(g);
+  const scr = { spec, g, canvas, tex, mirror, region };
+  drawScreen(scr);
+  return scr;
+}
+const SCR = {
+  existing: makeScreen(SPEC.existing),
+  center: makeScreen(SPEC.center, 0, 'center'),
+  left: makeScreen(SPEC.side, -1, 'left'),      // Screen 2, house left
+  right: makeScreen(SPEC.side, 1, 'right'),     // Screen 3, house right
+};
+// Outline of today's wall, for Compare
+const amberMat = new LineMaterial({ color: 0xf2c46d, linewidth: 2, dashed: true, dashSize: 1.2, gapSize: 0.8, depthTest: false, transparent: true });
+const ghost = new LineSegments2(new LineSegmentsGeometry(), amberMat);
+ghost.renderOrder = 12;
+scene.add(ghost);
+let scen = 'refresh';
+
+/* ---------- Band risers (Brian, 15 Oct): 16' × 8', the drums riser's stage-left half 2' deeper,
+   three outer sides wrapped in ROE JT3.1 500 × 500 mm half panels. Height = one panel (estimated). ---------- */
+const RISER = { w: 16, d: 8, ext: 2, h: 0.5 * M2FT };
+const riserFaces = [];   // LED-wrapped faces, redrawn when the screen content changes
+if (params.has('debug')) window.__surfaces = { SCR, riserFaces };   // local checks of the pixel-map slicing
+function drawRiserFace(f) {
+  const ctx = f.canvas.getContext('2d'), w = f.canvas.width, h = f.canvas.height;
+  if (drawRegion(ctx, w, h, f.key)) { f.tex.needsUpdate = true; return; }
+  const cols = Math.max(1, Math.round(f.len * 0.3048 / 0.5));
+  if (content === 'sample') {
+    const g = ctx.createLinearGradient(0, 0, w, 0);
+    g.addColorStop(0, '#0b2a3a'); g.addColorStop(0.55, '#1f5a52'); g.addColorStop(1, '#c99a4e');
+    ctx.fillStyle = g;
+  } else ctx.fillStyle = '#0b1416';
+  ctx.fillRect(0, 0, w, h);
+  ctx.strokeStyle = 'rgba(143, 202, 152, 0.5)';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  for (let c = 1; c < cols; c++) { ctx.moveTo(c * w / cols, 0); ctx.lineTo(c * w / cols, h); }
+  ctx.stroke();
+  ctx.strokeRect(1.5, 1.5, w - 3, h - 3);
+  f.tex.needsUpdate = true;
+}
+function riserFace(len, key) {
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(120 * len); canvas.height = Math.round(120 * RISER.h);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const f = { canvas, tex, len, key };
+  riserFaces.push(f);
+  drawRiserFace(f);
+  return new THREE.Mesh(new THREE.PlaneGeometry(len, RISER.h), new THREE.MeshBasicMaterial({ map: tex, toneMapped: false }));
+}
+// Local frame: x across the stage (world x), front edge at z = 0, upstage toward −z
+function makeRiser(side, deepOuterHalf) {   // side −1 = house left (stage right), +1 = house right (stage left)
+  const g = new THREE.Group(), half = RISER.w / 2, H = RISER.h;
+  const inner = side < 0 ? [0, half] : [-half, 0], outer = side < 0 ? [-half, 0] : [0, half];
+  const dOuter = RISER.d + (deepOuterHalf ? RISER.ext : 0);
+  for (const [[a, b], d] of [[inner, RISER.d], [outer, dOuter]]) {
+    const body = new THREE.Mesh(new THREE.BoxGeometry(b - a, H, d), M.bandRiser);
+    body.position.set((a + b) / 2, H / 2, -d / 2);
+    g.add(body);
+  }
+  const who = side < 0 ? 'keys' : 'drums';   // pixel-map regions: keysFront, drumsOuter, ...
+  const front = riserFace(RISER.w, `${who}Front`);
+  front.position.set(0, H / 2, 0.02);
+  const inEnd = riserFace(RISER.d, `${who}Inner`);
+  inEnd.rotation.y = side < 0 ? Math.PI / 2 : -Math.PI / 2;
+  inEnd.position.set(side < 0 ? half + 0.02 : -half - 0.02, H / 2, -RISER.d / 2);
+  // Every end carries five panels from the front corner; the drums riser's extra 2' upstage stays bare
+  const outEnd = riserFace(RISER.d, `${who}Outer`);
+  outEnd.rotation.y = side < 0 ? -Math.PI / 2 : Math.PI / 2;
+  outEnd.position.set(side < 0 ? -half - 0.02 : half + 0.02, H / 2, -RISER.d / 2);
+  g.add(front, inEnd, outEnd);
+  scene.add(g);
+  return g;
+}
+const RISERS = { keys: makeRiser(-1, false), drums: makeRiser(1, true) };
+function placeRisers() {
+  RISERS.keys.position.copy(W(S.header.x0 - P.keysX, -P.keysY, S.deck));
+  RISERS.drums.position.copy(W(S.header.x0 - P.drumsX, P.drumsY, S.deck));
+}
+function onDeck(x, y) {
+  if (x > S.backWall || Math.abs(y) > S.stageHalf) return false;
+  if (x >= S.jamb.x1) return true;                                              // behind the opening line
+  if ((x - S.platform.cx) ** 2 + y * y > S.platform.r ** 2 + 0.01) return false; // past the curved lip
+  if (x > S.stairs.x0 && x < S.stairs.x1 && Math.abs(y) > S.stairs.yIn) return false;
+  return Math.abs(y) <= S.jamb.half || x >= S.jamb.x1;
+}
+function riserFits(xFront, yc, side, deep) {   // all corners on the deck
+  const half = RISER.w / 2, d = RISER.d, xf = S.header.x0 - xFront, c = side * yc;
+  const outerY = c + side * half, innerY = c - side * half;
+  return [[xf, outerY], [xf, innerY], [xf + d, innerY], [xf + d + (deep ? RISER.ext : 0), outerY], [xf + d, c]].every(([x, y]) => onDeck(x, y));
+}
+
+/* ---------- Trusses: rigid 12" box truss. Uneven trims tilt it about the middle of its pick points (on top,
+   where the chains attach) without stretching it, so its ends swing in and both chains lean in a little ---------- */
+const trussGroup = new THREE.Group();
+scene.add(trussGroup);
+const lacingMat = new THREE.LineBasicMaterial({ color: 0x7c8590 });
+const pickMat = new THREE.MeshBasicMaterial({ color: 0x5bd16a });
+const chainMat = new THREE.LineBasicMaterial({ color: 0xbcc0c6 });   // light gray motor chain
+const pickGeo = new THREE.SphereGeometry(0.4, 12, 8);
+const TRUSS_SIZE = 1.0;
+function trussPose(t) {   // a rigid truss runs straight through its end picks
+  const p = t.picks, v = TRIM[t.id], n = p.length - 1, mid = (p[0] + p[n]) / 2;
+  const sin = n ? (v[n] - v[0]) / (p[n] - p[0]) : 0;
+  // mid = middle of the picks along the truss; (y, el) = its bottom face there, set so the top stays under the middle
+  return { mid, y: mid + sin * TRUSS_SIZE, el: S.deck + (v[0] + v[n]) / 2, sin, cos: Math.sqrt(1 - sin * sin) };
+}
+function trimAt(t, y) {   // bottom of the truss above the deck at plan y
+  const q = trussPose(t);
+  return q.el - S.deck + (y - q.y) * q.sin / Math.max(q.cos, 1e-6);
+}
+function bar(a, b, r) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(r, r, a.distanceTo(b)), M.truss);
+  m.position.copy(a).add(b).multiplyScalar(0.5);
+  m.lookAt(b);
+  return m;
+}
+function buildTruss(t) {
+  const g = new THREE.Group(), half = TRUSS_SIZE / 2, lac = [], chain = [], q = trussPose(t);
+  // dx across the truss, u along it from the middle of its picks, w up off its bottom face
+  const at = (dx, u, w) => W(t.x + dx, q.y + u * q.cos - w * q.sin, q.el + u * q.sin + w * q.cos);
+  const u0 = t.y0 - q.mid, u1 = t.y1 - q.mid;
+  for (const dx of [-half, half]) for (const w of [0, TRUSS_SIZE]) g.add(bar(at(dx, u0, w), at(dx, u1, w), 0.16));
+  const steps = Math.max(1, Math.round(u1 - u0));
+  for (let s = 0; s < steps; s++) {
+    const a = u0 + (u1 - u0) * s / steps, b = u0 + (u1 - u0) * (s + 1) / steps;
+    for (const w of [0, TRUSS_SIZE]) lac.push(at(-half, a, w), at(half, b, w));      // top and bottom faces
+    for (const dx of [-half, half]) lac.push(at(dx, a, 0), at(dx, b, TRUSS_SIZE));   // front and back faces
+  }
+  g.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(lac), lacingMat));
+  t.picks.forEach(y => {
+    const top = at(0, y - q.mid, TRUSS_SIZE);
+    const dot = new THREE.Mesh(pickGeo, pickMat);
+    dot.position.copy(top);
+    g.add(dot);
+    chain.push(top, W(t.x, y, roofEl(t.x) - 3.4));   // chain up to its fixed point in the roof steel
+  });
+  g.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(chain), chainMat));
+  return g;
+}
+const trussObjs = {};
+if (params.has('debug')) window.__truss = { TRUSSES, TRIM, trussObjs, trussPose };   // local checks of the truss geometry
+function syncScreenTruss() {
+  for (const t of TRUSSES) if (t.follows) {
+    t.x = S.header.x1 + P.cUp + SCREEN_TRUSS_BACK;
+    TRIM[t.id] = t.picks.map(() => P.cTrim + SPEC.center.h + SCREEN_TRUSS_GAP);
+  }
+}
+function placeTrusses(only) {
+  syncScreenTruss();
+  for (const t of TRUSSES) {
+    if (only && !only(t)) continue;
+    const old = trussObjs[t.id];
+    if (old) {
+      trussGroup.remove(old);
+      old.traverse(o => { if (o.geometry && o.geometry !== pickGeo) o.geometry.dispose(); });
+    }
+    trussObjs[t.id] = buildTruss(t);
+    trussGroup.add(trussObjs[t.id]);
+  }
+  needsRender = true;
+}
+
+function place() {
+  const deck = S.deck;
+  // Existing wall
+  const ex = SCR.existing;
+  ex.g.position.copy(W(EXISTING_X, 0, deck + P.exTrim + ex.spec.h / 2));
+  // Screen 1
+  const c = SCR.center, cX = S.header.x1 + P.cUp;
+  c.g.position.copy(W(cX, 0, deck + P.cTrim + c.spec.h / 2));
+  // Screens 2 + 3: house left is Screen 2
+  for (const s of [SCR.left, SCR.right]) {
+    s.g.position.copy(W(S.header.x0 - P.sDown, s.mirror * P.sOff, deck + P.sTrim + s.spec.h / 2));
+    s.g.rotation.y = -s.mirror * P.sToe * DEG;
+  }
+  placeRisers();
+  placeTrusses(t => t.follows);   // the Screen 1 truss rides with the screen
+  // Ghost of today's wall (Compare)
+  const gx = EXISTING_X, gb = deck + P.exTrim, gt = gb + SPEC.existing.h, hw = SPEC.existing.w / 2;
+  const corners = [W(gx - 0.3, -hw, gb), W(gx - 0.3, hw, gb), W(gx - 0.3, hw, gt), W(gx - 0.3, -hw, gt)];
+  const segs = [];
+  for (let i = 0; i < 4; i++) segs.push(...corners[i].toArray(), ...corners[(i + 1) % 4].toArray());
+  ghost.geometry.dispose();
+  ghost.geometry = new LineSegmentsGeometry().setPositions(segs);
+  ghost.computeLineDistances();
+  applyScenario();
+  readouts();
+  if (VIEWS[current].shot) document.getElementById('caption').innerHTML = caption(current);   // the screens may have moved
+  needsRender = true;
+}
+function applyScenario() {
+  const now = scen === 'existing', fut = !now;
+  SCR.existing.g.visible = now;
+  for (const s of [SCR.center, SCR.left, SCR.right]) s.g.visible = fut;
+  ghost.visible = scen === 'compare';
+  trussGroup.visible = fut;   // the trusses are the Feb 2027 rig
+  refreshAnnot();
+}
+
+/* =====================================================================================
+   6. READOUTS AND SIGHTLINES
+   ===================================================================================== */
+const _v = new THREE.Vector3(), _n = new THREE.Vector3();
+function sight(scr) {
+  scr.g.updateMatrixWorld();
+  const c = scr.g.getWorldPosition(new THREE.Vector3());
+  _n.set(0, 0, 1).applyQuaternion(scr.g.getWorldQuaternion(new THREE.Quaternion()));
+  const top = c.y + scr.spec.h / 2;
+  let near = Infinity, far = 0, wide = 0, up = 0, steep = 0;
+  for (const e of eyes) {
+    _v.subVectors(e, c);
+    const d = _v.length();
+    if (d < near) near = d;
+    if (d > far) far = d;
+    // horizontal off-axis angle (what an LED module's viewing angle cares about)
+    const hx = _v.x, hz = _v.z, nx = _n.x, nz = _n.z;
+    const ang = Math.acos(Math.max(-1, Math.min(1, (hx * nx + hz * nz) / (Math.hypot(hx, hz) * Math.hypot(nx, nz))))) / DEG;
+    if (ang > wide) wide = ang;
+    const look = Math.atan2(top - e.y, Math.hypot(hx, hz)) / DEG;
+    if (look > up) up = look;
+    if (look > STEEP) steep++;
+  }
+  return { near, far, wide, up, steep };
+}
+const STEEP = 35;   // degrees from a seated eye to the top edge; the usual comfort limit
+function sideCorners(s) {   // plan corners of a side screen's face
+  const half = s.spec.w / 2, t = P.sToe * DEG, xc = S.header.x0 - P.sDown, yc = s.mirror * P.sOff;
+  // outer edge (away from center) comes downstage by toe-in
+  const outer = [xc - half * Math.sin(t), yc + s.mirror * half * Math.cos(t)];
+  const inner = [xc + half * Math.sin(t), yc - s.mirror * half * Math.cos(t)];
+  return { outer, inner };
+}
+function readouts() {
+  const deck = S.deck, hdr = S.header.el - deck;
+  // Existing wall
+  {
+    const top = P.exTrim + SPEC.existing.h;
+    document.getElementById('ex-read').textContent = `Top ${ftIn(top)} above deck, ${ftIn(hdr - top)} under the beam.`;
+  }
+  // Screen 1: header clearance, how much of the top the header hides from the highest seats, gap to its truss
+  {
+    const top = P.cTrim + SPEC.center.h, clr = hdr - top, el = document.getElementById('c-read');
+    const faceX = S.header.x1 + P.cUp, topEl = deck + top, xb = S.header.x1;
+    let hidden = 0;
+    if (faceX > xb) for (const e of eyes) {
+      const ex = -e.z, eel = e.y + Y0;   // seat eye back in plan feet and project elevation
+      const graze = eel + (S.header.el - eel) * (faceX - ex) / (xb - ex);
+      hidden = Math.max(hidden, topEl - graze);
+    }
+    let msg = clr >= 0
+      ? `Top ${ftIn(top)} above deck, ${ftIn(clr)} under the beam (bottom of beam ${ftIn(hdr)} above deck).`
+      : `Top ${ftIn(top)} above deck, ${ftIn(-clr)} above the bottom of the beam.`;
+    if (hidden > 0.04) msg += ` From the highest seats the beam hides the top ${ftIn(hidden)}.`;
+    msg += ` Its truss rides ${ftIn(SCREEN_TRUSS_GAP)} above the top.`;
+    el.textContent = msg;
+    el.classList.toggle('bad', hidden > 0.04);
+  }
+  // Band risers
+  {
+    const el = document.getElementById('r-read');
+    const kOk = riserFits(P.keysX, P.keysY, -1, false), dOk = riserFits(P.drumsX, P.drumsY, 1, true);
+    el.textContent = kOk && dOk ? `Both risers sit on the deck. Height ${ftIn(RISER.h)}, one panel tall (estimated).`
+      : `${!kOk && !dOk ? 'Both risers run' : !kOk ? 'The keys riser runs' : 'The drums riser runs'} off the deck edge or onto the stairs.`;
+    el.classList.toggle('bad', !(kOk && dOk));
+  }
+  // Trusses: rated hang points vs. Screen 1's weight, and the 60' truss in front of the screen
+  {
+    const el = document.getElementById('t-read'), t70 = TRUSSES[0], t60 = TRUSSES[1];
+    const rated = t70.picks.length * HANG_LB, top = P.cTrim + SPEC.center.h;
+    let low = Infinity;
+    for (let y = -SPEC.center.w / 2; y <= SPEC.center.w / 2; y += 1) low = Math.min(low, trimAt(t60, Math.max(t60.y0, Math.min(t60.y1, y))));
+    let msg = `Screen 1 truss: ${t70.picks.length} points × ${HANG_LB} lb = ${rated.toLocaleString('en-US')} lb rated. Screen 1 alone is ${SPEC.center.lb.toLocaleString('en-US')} lb in the ROE calculator, before truss, hang bars and motors.`;
+    if (low < top && t60.x < S.header.x1 + P.cUp) msg += ` The 60′ truss drops ${ftIn(top - low)} below the screen top, in front of the screen.`;
+    el.textContent = msg;
+    el.classList.toggle('bad', rated < SPEC.center.lb || low < top);
+  }
+  // Screens 2 + 3
+  {
+    const el = document.getElementById('s-read'), { outer, inner } = sideCorners(SCR.left);
+    const gap = Math.abs(inner[1]) - SPEC.center.w / 2;
+    const outerOk = insideBy(outer[0], outer[1], 0.4), innerOk = !(inner[0] > S.prosc - 0.4 && Math.abs(inner[1]) > S.jamb.half - 0.1);
+    const lowFloor = S.low - deck, bottom = P.sTrim;
+    let msg = `Gap to Screen 1 ${ftIn(gap)} each side. Outer edges ${ftIn(Math.abs(outer[1]))} off centerline. Bottom ${ftIn(bottom - lowFloor)} above the house floor beside the stage.`;
+    let bad = false;
+    if (!outerOk) { msg = `Outer edge runs into the angled house wall. Pull the screens in or downstage. ${msg}`; bad = true; }
+    else if (!innerOk) { msg = `Inner edge runs into the wall beside the opening. Move the screens downstage. ${msg}`; bad = true; }
+    else if (gap < 0) { msg = `Side screens overlap Screen 1 in front view. ${msg}`; bad = true; }
+    el.textContent = msg;
+    el.classList.toggle('bad', bad);
+  }
+  // Sightlines
+  const rows = scen === 'existing' ? [['Today’s wall', SCR.existing]] : [['Screen 1', SCR.center], ['Screen 2', SCR.left], ['Screen 3', SCR.right]];
+  const body = document.getElementById('sightBody');
+  body.replaceChildren(...rows.map(([name, s]) => {
+    const r = sight(s), tr = document.createElement('tr');
+    for (const t of [name, ftR(r.near), ftR(r.far), `${Math.round(r.wide)}°`, `${Math.round(r.up)}°`, r.steep.toLocaleString('en-US')]) {
+      const td = document.createElement('td'); td.textContent = t; tr.append(td);
+    }
+    return tr;
+  }));
+  const main = scen === 'existing' ? SCR.existing : SCR.center, r = sight(main);
+  document.getElementById('sightNote').textContent =
+    `${seats.length.toLocaleString('en-US')} seats as modeled. Near and Far run from a seated eye to the screen center; the farthest seat sits ${(r.far / main.spec.h).toFixed(1)} screen-heights from ${scen === 'existing' ? 'today’s wall' : 'Screen 1'}. ` +
+    `Widest is the horizontal angle off the screen face. Look up is the steepest angle from a seated eye to the top edge; Over 35° counts the seats past the usual comfort limit. ROE rates 3.125 mm comfortable from 17′-7″.`;
+  copyText();
+}
+
+/* =====================================================================================
+   7. DIMENSION SCHEDULE (text built from the same numbers as the model)
+   ===================================================================================== */
+{
+  const J = S.jamb, B = S.balcony, depthCL = S.backWall - (S.platform.cx - S.platform.r), O = S.oldElement;
+  const items = [
+    ['House width at the catwalk', 'scaled', `${ftIn(2 * S.houseHalf)} between structural walls (A4.00 section 3)`],
+    ['Room depth on the centerline', 'scaled', `${ftIn(S.backWall + S.rearR)} stage back wall to rear wall`],
+    ['Platform height', 'plans', `${ftIn(S.deck - S.low)} above the house floor (281′-5″ deck, −1′-7″ floor)`],
+    ['Platform depth on the centerline', 'scaled', `${ftIn(depthCL)} back wall to lip; lip is a ${ftIn(S.platform.r)} radius arc`],
+    ['Platform opening', 'site', `${ftIn(2 * J.half)} wide (scaled) × ${ftIn(S.header.el - S.deck)} from the deck to the bottom of the beam (laser). A4.00 also draws a furred soffit down to 25′-10¾″ that isn't there`],
+    ['Behind the beam', 'scaled', `${ftIn(S.backWall - S.header.x1)} to the back wall, ${ftIn(2 * S.stageHalf)} wall to wall`],
+    ['Catwalk level', 'plans', `308′-4″, ${ftIn(S.catwalk - S.deck)} above the deck (catwalks not shown)`],
+    ['Underside of roof deck', 'scaled', `${elev(roofEl(S.backWall))} at the stage back wall, ${elev(roofEl(-S.rearR))} at the rear`],
+    ['House floor', 'scaled', `flat to ${ftIn(S.slopeIn)} from the stage focus, then rises 1:11 to 280′-0″ at ${ftIn(S.slopeOut)}`],
+    ['Balcony', 'scaled', `${B.seatedRows} seated rows on ${ftIn(B.pitch)} treads, 14″ risers, ${elev(B.row0El)} up to a top landing at ${elev(B.row0El + B.rise * (B.rows - 1))} (05 Rear Seating 295′-2″)`],
+    ['Unlabeled element upstage', 'scaled', `A4.00 section 1 draws a 3″ element dimensioned 4′-0″ upstage of the beam’s inside face, ${ftIn(O.bottom - S.deck)} to ${ftIn(O.top - S.deck)} above the deck. Not modeled; confirm what hangs there now`],
+    ['FOH', 'est', `level platform ${ftIn(2 * FOH.half)} wide × ${ftIn(FOH.back - FOH.front)} deep in the back three rows of 204/205, flush with the cross aisle`],
+    ['Slope seating', 'est', `fitted to the 2026 seat map, 480 seats: 19½″ seats, 3′-0″ aisles at ±${SLOPE.aisles.filter(a => a > 0).join('°, ±')}°; 201 and 208 at half the 2016 size`],
+    ['Camera bay', 'scaled', `${ftIn(2 * CAM.half)} wide × ${ftIn(CAM.back - CAM.front)} deep in the balcony front at center, open to the cross aisle (A1.01); camera heights estimated`],
+    ['Seats as modeled', 'est', `${seats.length.toLocaleString('en-US')}: floor ${tierCount('floor')}, slope ${tierCount('slope')}, balcony ${tierCount('balcony')}. The 2016 layout, trimmed at the walls, FOH and camera bay`],
+    ['PA', 'est', 'main hangs where the June photo shows them; side hangs 31′-0″ off center (moved 10′ in); heights confirmed'],
+    ['Band risers', 'est', `16′-0″ × 8′-0″, drums riser's stage-left half 10′-0″ deep, ROE JT3.1 500 mm half panels on three sides (160 px each), ten across each front and five on each end; positions set 15 Oct; height ${ftIn(RISER.h)} (one panel) estimated`],
+    ['Trusses', 'set', 'positions and pick points from the 15 Oct rigging sketch, the four upstage of the beam moved 1′ downstage 17 Oct; trims set 15 Oct'],
+    ['Existing LED wall', 'site', `3840 × 990 px at 4 mm = 15.36 × 3.96 m (${ftIn(SPEC.existing.w)} × ${ftIn(SPEC.existing.h)}), directly below the beam; standing on the deck per the June photo`],
+    ['ROE screen sizes', 'quote', '18.0 × 7.5 m center, two at 9.0 × 7.5 m (SQ-35382)'],
+    ['ROE screen placement', 'set', 'working layout set 15 Oct: Screen 1 on its truss 5′ upstage of the beam (moved 1′ downstage 17 Oct), side screens 50′-0″ off center, 9′-3″ downstage, toed in 18° (reset 17 Oct), all on the deck'],
+  ];
+  const label = { plans: 'Plans', scaled: 'Scaled', quote: 'Quote', est: 'Est.', site: 'Site', set: 'Set' };
+  document.getElementById('sched').replaceChildren(...items.map(([item, kind, val]) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="item"></span><em class="chip ${kind}">${label[kind]}</em><span class="val"></span>`;
+    li.querySelector('.item').textContent = item;
+    li.querySelector('.val').textContent = val;
+    return li;
+  }));
+  put('c-ftin', `${ftIn(SPEC.center.w)} × ${ftIn(SPEC.center.h)}`);
+  put('ex-ftin', `${ftIn(SPEC.existing.w)} × ${ftIn(SPEC.existing.h)}`);
+  put('s-ftin', `${ftIn(SPEC.side.w)} × ${ftIn(SPEC.side.h)}`);
+  put('rev', REV);
+  put('date', REV_DATE);
+}
+
+/* =====================================================================================
+   8. DIMENSION STRINGS AND LABELS
+   ===================================================================================== */
+const annot = [];     // { obj, views }
+const turning = [];
+const dimMat = new LineMaterial({ color: 0x8fca98, linewidth: 1.4, transparent: true, depthTest: false, depthWrite: false });
+function chain(pts, off, texts, views, opt = {}) {
+  const g = new THREE.Group();
+  const n = off.clone().normalize();
+  const u = pts[pts.length - 1].clone().sub(pts[0]).normalize();
+  const Q = pts.map(p => p.clone().add(off));
+  let shortest = Infinity;
+  for (let i = 1; i < Q.length; i++) shortest = Math.min(shortest, Q[i].distanceTo(Q[i - 1]));
+  const tick = u.clone().add(opt.tickN || n).normalize().multiplyScalar(Math.min(1.4, shortest * 0.3));
+  const s = [...Q[0].toArray(), ...Q[Q.length - 1].toArray()];
+  pts.forEach((p, i) => {
+    if (opt.ext !== false) s.push(...p.clone().addScaledVector(n, 1.0).toArray(), ...Q[i].clone().addScaledVector(n, 1.2).toArray());
+    s.push(...Q[i].clone().sub(tick).toArray(), ...Q[i].clone().add(tick).toArray());
+  });
+  const line = new LineSegments2(new LineSegmentsGeometry().setPositions(s), dimMat);
+  line.renderOrder = 10;
+  g.add(line);
+  texts.forEach((t, i) => {
+    if (!t) return;
+    const outer = document.createElement('div'), pill = document.createElement('span');
+    pill.className = 'lbl'; pill.textContent = t; outer.appendChild(pill);
+    const o = new CSS2DObject(outer);
+    o.position.copy(Q[i]).add(Q[i + 1]).multiplyScalar(0.5);
+    g.add(o);
+    turning.push({ g, pill, a: Q[i], b: Q[i + 1] });
+  });
+  scene.add(g);
+  annot.push({ obj: g, views });
+}
+function note(text, pos, views, cls = 'sec-lbl') {
+  const el = document.createElement('div');
+  el.className = cls;
+  el.textContent = text;
+  const o = new CSS2DObject(el);
+  o.position.copy(pos);
+  scene.add(o);
+  annot.push({ obj: o, views });
+}
+{
+  const J = S.jamb, top = 330, hdr = S.header.el;
+  const apex = S.platform.cx - S.platform.r, xW = -Math.sqrt(S.rearR ** 2 - S.houseHalf ** 2);
+  // Plan
+  chain([S.backWall, S.header.x1, apex].map(x => W(x, 66, top)), V(-1, 0, 0).multiplyScalar(0.001),
+    [ftIn(S.backWall - S.header.x1), ftIn(S.header.x1 - apex)], ['plan'], { ext: false, tickN: V(1, 0, 0) });
+  chain([W(S.backWall, 0, top), W(-S.rearR, 0, top)], V(98, 0, 0), [`${ftIn(S.backWall + S.rearR)} back wall to rear wall`], ['plan']);
+  chain([W(-40, -S.houseHalf, top), W(-40, S.houseHalf, top)], V(0, 0, 0.001), [`${ftIn(2 * S.houseHalf)} house, wall to wall`], ['plan'], { ext: false, tickN: V(0, 0, 1) });
+  // Section (cut on the centerline, seen from house right)
+  const sx = 0;   // on the cut plane, so the section clip keeps it
+  chain([W(apex - 0.5, sx, S.low), W(apex - 0.5, sx, S.deck)], V(0, 0, 4), [ftIn(S.deck - S.low)], ['section']);
+  chain([W(-1.7, sx, S.deck), W(-1.7, sx, hdr)], V(0, 0, 10), [`${ftIn(hdr - S.deck)} clear to the beam`], ['section'], { ext: false, tickN: V(0, 1, 0) });
+  chain([W(S.backWall, sx, S.deck), W(S.backWall, sx, roofEl(S.backWall))], V(0, 0, -5), [`${ftIn(roofEl(S.backWall) - S.deck)} deck to roof deck`], ['section']);
+  chain([W(-S.rearR, sx, S.firstFloor), W(-S.rearR, sx, S.balcony.row0El + S.balcony.rise * (S.balcony.rows - 1))], V(0, 0, 6),
+    [`${ftIn(S.balcony.rise * (S.balcony.rows - 1) + S.balcony.row0El - S.firstFloor)} top balcony landing`], ['section']);
+  note('Platform 281′-5″', W(-18, sx, S.deck + 3.5), ['section'], 'lbl');
+  note('House floor 278′-5″', W(-58, sx, S.low + 3), ['section'], 'lbl');
+  // Section names (approximate, for orientation), plan only
+  const secs = [['103', 52, 0], ['102', 50, -38], ['104', 50, 38], ['101', 51, -64], ['105', 51, 64],
+    ['201', 74, -59.25], ['202', 74, -43.4], ['203', 74, -25.6], ['204', 67.5, -8.75], ['205', 67.5, 8.75], ['206', 74, 25.6], ['207', 74, 43.4], ['208', 74, 59.25],
+    ['301', 112, -52], ['302', 115, -37], ['303', 115, -17.5], ['304', 117, 0], ['305', 115, 17.5], ['306', 115, 37], ['307', 112, 52]];
+  for (const [t, r, p] of secs) { const [x, y] = atPolar(r, -p); note(t, W(x, y, 300), ['plan']); }
+  note('STAGE', W(-14, 0, 300), ['plan']);
+  note('FOH', W(-76.5, 0, 300), ['plan']);
+  note('CAMERA', W(-101.5, 0, 300), ['plan']);
+}
+// Section numbers in the plan follow the 2026 seating maps, which draw section 101 on the audience's right.
+
+// Section cut line: the room profile on the centerline, drawn just in front of the cut plane
+const cutLine = (() => {
+  // The centerline runs through the FOH platform and the camera bay, so the cross aisle continues into the bay
+  const B = S.balcony, apex = S.platform.cx - S.platform.r, rowEl = k => B.row0El + B.rise * k;
+  const firstFull = Math.ceil((CAM.back - B.first) / B.pitch);   // first row behind the camera bay
+  const shell = [[S.backWall, roofEl(S.backWall)], [S.backWall, S.deck], [apex, S.deck], [apex, S.low], [-S.slopeIn, S.low],
+    [-FOH.front, floorEl(FOH.front)], [-FOH.front, S.firstFloor + 2.5], [-(FOH.front + 0.5), S.firstFloor + 2.5], [-(FOH.front + 0.5), S.firstFloor],
+    [-CAM.back, S.firstFloor], [-CAM.back, rowEl(firstFull - 1)], [-(B.first + B.pitch * firstFull), rowEl(firstFull - 1)]];
+  for (let k = firstFull; k < B.rows; k++) {
+    const el = rowEl(k), x0 = -(B.first + B.pitch * k), x1 = k === B.rows - 1 ? -S.rearR : x0 - B.pitch;
+    shell.push([x0, el], [x1, el]);
+  }
+  shell.push([-S.rearR, roofEl(-S.rearR)], [S.backWall, roofEl(S.backWall)]);
+  const header = [[S.header.x0, roofEl(S.header.x0)], [S.header.x0, S.header.el], [S.header.x1, S.header.el], [S.header.x1, roofEl(S.header.x1)]];
+  const seg = [];
+  for (const line of [shell, header]) for (let i = 0; i < line.length - 1; i++) seg.push(...W(line[i][0], 0, line[i][1]).toArray(), ...W(line[i + 1][0], 0, line[i + 1][1]).toArray());
+  const l = new LineSegments2(new LineSegmentsGeometry().setPositions(seg), new LineMaterial({ color: 0xe8ece6, linewidth: 2.4, depthTest: false, transparent: true }));
+  l.renderOrder = 9;
+  scene.add(l);
+  return l;
+})();
+const _a = new THREE.Vector3(), _b = new THREE.Vector3();
+function orientLabels() {
+  const w = host.clientWidth, h = host.clientHeight;
+  for (const L of turning) {
+    if (!L.g.visible) continue;
+    _a.copy(L.a).project(camera); _b.copy(L.b).project(camera);
+    const dx = (_b.x - _a.x) * w, dy = (_a.y - _b.y) * h;
+    if (dx * dx + dy * dy < 1e-6) continue;
+    let deg = Math.atan2(dy, dx) * 180 / Math.PI;
+    if (deg >= 90) deg -= 180; else if (deg < -90) deg += 180;
+    L.pill.style.transform = `rotate(${deg.toFixed(1)}deg)`;
+  }
+}
+
+/* =====================================================================================
+   9. VIEWS
+   ===================================================================================== */
+const look = (x, y, el) => W(x, y, el).toArray();
+const seatAt = (r, phi, el) => { const [x, y] = atPolar(r, phi); return look(x, y, el + EYE); };
+const VIEWS = {
+  // Brian's framing (15 Oct, solved from his screenshot): on the centerline, 236' behind the rear wall and 104' above
+  // the cross aisle, looking down 16½° through a 21° lens at a 2:1 view. The lenses below keep that framing of the
+  // house, moving the camera in or out along the same line, and a narrower view pulls it straight back so the house
+  // still fits across it.
+  overview: { name: '3D overview', pos: look(-368.4, 0, S.firstFloor + 104.3), at: look(-14.45, 0, S.firstFloor), aspect: 2, fov: 21.2, cap: 'Cut-away 3D view from the back of the house, on the centerline; near walls and roof removed' },
+  plan: { name: 'Plan', ortho: true, cap: 'Plan, stage at the top' },
+  section: { name: 'Long section', ortho: true, cap: 'Long section on the centerline, seen from house right' },
+  front: { name: 'Front row', fp: true, pos: look(-41.25, -3, S.low + EYE), at: look(0, 0, S.deck + 13), fov: 70, cap: 'Floor, front row center, seated eye 3′-10″' },
+  floor: { name: 'Floor, row 5', fp: true, pos: look(-54.25, 6, S.low + EYE), at: look(0, 0, S.deck + 12), fov: 62, cap: 'Floor, row 5 just right of center, seated' },
+  slope: { name: 'Slope, house left', fp: true, pos: seatAt(75.05, -47, floorEl(75.05)), at: look(0, -6, S.deck + 12), fov: 60, cap: 'Slope seating, house left, seated' },
+  foh: { name: 'FOH', fp: true, pos: look(-80.0, 0.5, S.firstFloor + 5.25), at: look(0, 0, S.deck + 12), fov: 55, cap: 'FOH mix position in the center slope seating, standing at the desk' },
+  balc: { name: 'Balcony, top row', fp: true, pos: seatAt(S.balcony.first + S.balcony.pitch * (S.balcony.seatedRows - 1) + 1.5, 3, S.balcony.row0El + S.balcony.rise * (S.balcony.seatedRows - 1)), at: look(0, 0, S.deck + 11), fov: 48, cap: 'Balcony top row, center, seated (farthest seats)' },
+  balcSide: { name: 'Balcony, house left', fp: true, pos: seatAt(S.balcony.first + 1.5, -57, S.balcony.row0El), at: look(0, 6, S.deck + 12), fov: 60, cap: 'Balcony front row, far house left, seated (widest angle)' },
+};
+// The camera shots (CAMS): each a 16:9 frame aimed by its own zoom, pan and tilt; the lens fits the frame to the view
+// and a matte covers the rest
+for (const c of CAMS) VIEWS[c.key] = { name: `${c.label} camera`, fp: true, shot: c, cap: () => shotCaption(c) };
+// The 3D view's field of view and tilt (Brian, 17 Oct). Each lens is an angle across the view (Brian's numbers), held
+// whatever shape the view is; Normal opens the page. Tilt turns the view up or down on the spot, on top of aiming at
+// the orbit center, so a low view can look up at the screens and trusses.
+const LENSES = { wide: 90, normal: 50, narrow: 25 };
+const lensFov = () => 2 * Math.atan(Math.tan(LENSES[lens] / 2 * DEG) / aspect()) / DEG;   // the camera's angle top to bottom
+let lens = 'normal', viewTilt = 0;
+const viewCtl = document.getElementById('viewCtl'), viewTiltEl = document.getElementById('view-tilt');
+function viewLabels() {
+  document.getElementById('lens-o').textContent = `${LENSES[lens]}° across`;
+  document.querySelectorAll('[data-lens]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lens === lens)));
+  document.getElementById('view-tilt-o').textContent = Math.abs(viewTilt) < 0.05 ? 'Centered' : `${Math.abs(viewTilt).toFixed(1)}° ${viewTilt < 0 ? 'down' : 'up'}`;
+}
+let current = 'overview', orthoBase = { sw: 1, sh: 1 }, tween = null, needsRender = true, userMoved = false;
+let dimsOn = !DESIGNER;   // the designer copy has no Dimensions toggle, so it stays clean
+const aspect = () => Math.max(0.2, host.clientWidth / Math.max(1, host.clientHeight));
+
+// The 3D overview keeps its framed camera at its own aspect or wider; a narrower view backs it off along its line
+// of sight in proportion, so the width of the house stays in frame. A wider lens moves it in, a narrower one back.
+function framePersp(v) {
+  const tgt = V(...v.at), k = Math.tan(v.fov / 2 * DEG) / Math.tan(lensFov() / 2 * DEG);
+  return { pos: tgt.clone().add(V(...v.pos).sub(tgt).multiplyScalar(k * Math.max(1, v.aspect / aspect()))), tgt };
+}
+// A camera's 16:9 frame always fills the view's height or width; the lens widens past it only to fill a view
+// narrower than 16:9, and the matte marks what the camera actually sees
+const shotFrame = document.getElementById('shotFrame'), camCtl = document.getElementById('camCtl');
+const shotFov = c => 2 * Math.atan(Math.tan(camAim(c).half) * Math.max(1, CAM_ASPECT / aspect())) / DEG;
+function aimShot(c) {   // the lens, and a look-around pivot just ahead of it on the aimed axis
+  const pos = camEye(c);
+  return { pos, tgt: pos.clone().addScaledVector(camAxis(camAim(c)), 0.6) };
+}
+// The frame centers in the clear band between the toolbar and the camera controls when it fits there, so they sit on
+// the matte; the lens's image center moves with it
+function placeShotFrame() {
+  const vw = host.clientWidth, vh = host.clientHeight, fw = Math.min(vw, vh * CAM_ASPECT), fh = fw / CAM_ASPECT;
+  const top = host.getBoundingClientRect().top, slack = (vh - fh) / 2;
+  const band = [document.querySelector('.toolbar').getBoundingClientRect().bottom - top + 8, document.querySelector('.foot').getBoundingClientRect().top - top - 8];
+  const dy = Math.max(-slack, Math.min(slack, vh / 2 - (band[0] + band[1]) / 2));
+  persp.setViewOffset(vw, vh, 0, dy, vw, vh);
+  Object.assign(shotFrame.style, { left: `${(vw - fw) / 2}px`, top: `${slack - dy}px`, width: `${fw}px`, height: `${fh}px` });
+}
+// Which pixels of each screen a camera's frame takes in, in that screen's own pixels: the face is projected into the
+// frame, clipped to it, and the clipped corners are carried back onto the face, so oblique side shots read true
+function shotOnScreens(c) {
+  const aim = camAim(c), eye = camEye(c), fwd = camAxis(aim);
+  const right = new THREE.Vector3().crossVectors(fwd, V(0, 1, 0)).normalize(), up = new THREE.Vector3().crossVectors(right, fwd);
+  const ty = Math.tan(aim.half), tx = ty * CAM_ASPECT, seen = [];
+  for (const [name, s] of [['Screen 2', SCR.left], ['Screen 1', SCR.center], ['Screen 3', SCR.right]]) {
+    if (!s.g.visible) continue;
+    s.g.updateMatrixWorld(true);
+    const { w, h } = s.spec, [pw, ph] = s.spec.px;
+    let poly = [[-w / 2, h / 2], [w / 2, h / 2], [w / 2, -h / 2], [-w / 2, -h / 2]].map(([x, y]) => {
+      const d = s.g.localToWorld(V(x, y, 0)).sub(eye), z = d.dot(fwd);
+      return z > 0 ? [d.dot(right) / z / tx, d.dot(up) / z / ty] : null;   // -1..1 across and up the frame
+    });
+    if (poly.some(p => !p)) continue;   // a face reaching behind the lens; none does from these positions
+    for (const [axis, sign] of [[0, 1], [0, -1], [1, 1], [1, -1]]) poly = clipFrame(poly, axis, sign);
+    if (!poly.length) continue;
+    const toFace = s.g.matrixWorld.clone().invert(), o = eye.clone().applyMatrix4(toFace), xs = [], ys = [];
+    for (const [u, v] of poly) {
+      const d = fwd.clone().addScaledVector(right, u * tx).addScaledVector(up, v * ty).transformDirection(toFace);
+      const p = o.clone().addScaledVector(d, -o.z / d.z);
+      xs.push((p.x / w + 0.5) * pw); ys.push((0.5 - p.y / h) * ph);
+    }
+    const px = (n, max) => Math.round(Math.min(max, Math.max(0, n)));
+    seen.push(`${name} <b>x ${px(Math.min(...xs), pw)}–${px(Math.max(...xs), pw)}, y ${px(Math.min(...ys), ph)}–${px(Math.max(...ys), ph)}</b>`);
+  }
+  return seen;
+}
+function clipFrame(poly, axis, sign) {   // keep the part of a polygon inside the frame edge coord[axis] = sign
+  const out = [], inside = p => p[axis] * sign <= 1;
+  poly.forEach((a, i) => {
+    const b = poly[(i + 1) % poly.length];
+    if (inside(a)) out.push(a);
+    if (inside(a) !== inside(b)) { const t = (sign - a[axis]) / (b[axis] - a[axis]); out.push([a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1])]); }
+  });
+  return out;
+}
+function shotCaption(c) {
+  const seen = shotOnScreens(c);
+  return `${c.where} · ${seen.length ? `pixels in frame: ${seen.join(' · ')}` : 'no screen in frame'}`;
+}
+function frameOrtho(sw, sh, keepZoom) {
+  orthoBase = { sw, sh };
+  const a = aspect(), half = Math.max(sh, sw / a) / 2;
+  Object.assign(ortho, { left: -half * a, right: half * a, top: half, bottom: -half });
+  if (!keepZoom) ortho.zoom = 1;
+  ortho.updateProjectionMatrix();
+}
+function fitOrtho(key) {
+  if (key === 'plan') {
+    ortho.up.set(0, 0, -1);                               // stage at the top
+    ortho.position.set(0, 600, 58);
+    controls.target.set(0, 0, 58);
+    frameOrtho(2 * S.houseHalf + 34, S.backWall + S.rearR + 34, false);
+  } else {
+    ortho.up.set(0, 1, 0);
+    ortho.position.set(600, 14, 58);
+    controls.target.set(0, 14, 58);
+    frameOrtho(S.backWall + S.rearR + 30, 70, false);
+  }
+  ortho.lookAt(controls.target);
+}
+function caption(key) {
+  const cap = VIEWS[key].cap, c = typeof cap === 'function' ? cap() : cap;
+  return BARE ? `HSL Auditorium Stage Refresh · ${c} · ${REV}, ${REV_DATE}` : c;
+}
+function refreshAnnot() {
+  for (const a of annot) a.obj.visible = dimsOn && a.views.includes(current);
+  cutLine.visible = current === 'section';
+  syncRoof();
+  renderer.clippingPlanes = current === 'section' ? [sectionClip] : [];
+  needsRender = true;
+}
+// The roof shows from inside the room, and in the 3D view whenever the camera is inside the room below the joists, so
+// a low view looking up sees the steel the chains hang from; from above or outside it stays cut away
+function syncRoof() {
+  const x = -persp.position.z, y = persp.position.x;
+  const show = !!VIEWS[current].fp || (current === 'overview' && inside(x, y) && persp.position.y + Y0 < roofEl(x) - 3.4);
+  if (roofGroup.visible !== show) { roofGroup.visible = show; needsRender = true; }
+}
+function setLimits(v) {
+  controls.minDistance = v.fp ? 0.01 : 20;
+  controls.maxDistance = v.fp ? 3 : 1500;
+  controls.minPolarAngle = v.fp ? 0.15 : 0;
+  controls.maxPolarAngle = v.fp ? Math.PI - 0.15 : Math.PI * 0.495;
+}
+function setView(key, animate = true) {
+  const v = VIEWS[key];
+  current = key;
+  document.querySelectorAll('[data-view]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === key)));
+  document.getElementById('tbView').textContent = v.name;
+  controls._sphericalDelta?.set(0, 0, 0);
+  controls._panOffset?.set(0, 0, 0);
+  userMoved = false;
+  if (v.ortho) {
+    tween = null;
+    controls.enabled = true;
+    camera = ortho;
+    controls.object = ortho;
+    controls.enableRotate = false;
+    controls.enablePan = controls.enableZoom = true;
+    controls.mouseButtons.LEFT = THREE.MOUSE.PAN;
+    controls.touches.ONE = THREE.TOUCH.PAN;
+    fitOrtho(key);
+  } else {
+    const fromOrtho = camera === ortho;
+    camera = persp;
+    controls.object = persp;
+    controls.enableRotate = !v.shot;              // the camera shot is locked
+    controls.enablePan = controls.enableZoom = !v.fp;
+    controls.mouseButtons.LEFT = THREE.MOUSE.ROTATE;
+    controls.touches.ONE = THREE.TOUCH.ROTATE;
+    persp.near = v.shot ? 3 : v.fp ? 0.1 : 2;   // a shot clips its own camera body, and the deeper near plane keeps distant screen faces off their back boxes
+    persp.fov = v.shot ? shotFov(v.shot) : key === 'overview' ? lensFov() : v.fov;
+    persp.updateProjectionMatrix();
+    let pos, tgt;
+    if (v.shot) ({ pos, tgt } = aimShot(v.shot));
+    else if (v.fp) {
+      pos = V(...v.pos);
+      tgt = pos.clone().add(V(...v.at).sub(pos).normalize().multiplyScalar(0.6));   // look-around pivot just ahead of the eye
+    } else {
+      ({ pos, tgt } = framePersp(v));
+    }
+    if (animate && !fromOrtho && !reduceMotion && !v.shot) {   // a 2° lens can't fly in, so the shot cuts
+      controls.enabled = false;
+      tween = { t0: performance.now(), p0: persp.position.clone(), p1: pos, q0: controls.target.clone(), q1: tgt, v };
+    } else {
+      tween = null;
+      persp.position.copy(pos);
+      controls.target.copy(tgt);
+      setLimits(v);
+      controls.enabled = true;
+    }
+  }
+  shotFrame.hidden = camCtl.hidden = !v.shot;
+  viewCtl.hidden = key !== 'overview';
+  if (key === 'overview') { viewTilt = 0; viewTiltEl.value = '0'; viewLabels(); }   // the 3D button brings back its framing, untilted
+  host.parentElement.classList.toggle('shooting', !!v.shot);
+  if (v.shot) { camSync(v.shot); placeShotFrame(); }
+  else persp.clearViewOffset();
+  document.getElementById('caption').innerHTML = caption(key);
+  refreshAnnot();
+  controls.update();
+  needsRender = true;
+}
+if (params.has('debug')) window.__view = { VIEWS, setView, persp, SCR };   // local checks: try a view preset, then setView(key, false)
+function stepTween(now) {
+  const k = Math.min(1, (now - tween.t0) / 900), e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+  persp.position.lerpVectors(tween.p0, tween.p1, e);
+  controls.target.lerpVectors(tween.q0, tween.q1, e);
+  persp.lookAt(controls.target);
+  if (k === 1) { setLimits(tween.v); tween = null; controls.enabled = true; controls.update(); }
+}
+
+/* ---------- Scale bar (plan and section) ---------- */
+const scalebar = document.getElementById('scalebar');
+function updateScale() {
+  if (camera !== ortho) { scalebar.hidden = true; return; }
+  const ppf = host.clientHeight / ((ortho.top - ortho.bottom) / ortho.zoom);
+  const L = [5, 10, 20, 25, 50, 100].find(n => n * ppf >= 90) || 100;
+  scalebar.hidden = false;
+  scalebar.querySelector('.bar').style.width = `${Math.round(L * ppf)}px`;
+  scalebar.querySelector('.t-mid').textContent = String(L / 2);
+  scalebar.querySelector('.t-end').textContent = `${L} ft`;
+}
+
+/* ---------- Resize ---------- */
+function resize() {
+  const w = host.clientWidth, h = host.clientHeight;
+  if (!w || !h) return;
+  renderer.setSize(w, h, false);
+  labels.setSize(w, h);
+  persp.aspect = w / h;
+  persp.updateProjectionMatrix();
+  if (camera === ortho) frameOrtho(orthoBase.sw, orthoBase.sh, true);
+  else if (current === 'overview') {
+    persp.fov = lensFov();   // the lens holds its angle across
+    persp.updateProjectionMatrix();
+    if (!userMoved && !tween) {
+      const f = framePersp(VIEWS.overview);
+      persp.position.copy(f.pos);
+      controls.target.copy(f.tgt);
+    }
+  } else if (VIEWS[current].shot) {
+    persp.fov = shotFov(VIEWS[current].shot);
+    persp.updateProjectionMatrix();
+    placeShotFrame();
+  }
+  needsRender = true;
+}
+new ResizeObserver(resize).observe(host);
+
+/* =====================================================================================
+   10. CONTROLS
+   ===================================================================================== */
+const SLIDERS = [
+  ['ex-trim', 'exTrim', ftIn],
+  ['c-up', 'cUp', ftIn],
+  ['s-off', 'sOff', ftIn], ['s-down', 'sDown', ftIn], ['s-toe', 'sToe', v => `${v}°`],
+  ['k-x', 'keysX', ftIn], ['k-y', 'keysY', ftIn], ['d-x', 'drumsX', ftIn], ['d-y', 'drumsY', ftIn],
+];
+// One slider per pick point, plus an "All points" slider per truss
+const trussCtl = document.getElementById('trussCtl');
+function syncTrussSliders() {
+  for (const t of TRUSSES) {
+    if (t.follows) continue;
+    const v = TRIM[t.id], same = v.every(x => x === v[0]);
+    document.getElementById(`${t.id}-all`).value = v.reduce((a, b) => a + b, 0) / v.length;
+    document.getElementById(`${t.id}-all-o`).textContent = same ? ftIn(v[0]) : 'varies';
+    if (t.level) continue;   // one slider only
+    v.forEach((x, i) => {
+      document.getElementById(`${t.id}-${i}`).value = x;
+      document.getElementById(`${t.id}-${i}-o`).textContent = ftIn(x);
+    });
+  }
+}
+for (const t of TRUSSES) {
+  if (t.follows) continue;   // the Screen 1 truss moves with Screen 1's own sliders
+  const d = document.createElement('details');
+  d.className = 'truss';
+  d.open = t.id === 't60';
+  const sum = document.createElement('summary'), info = document.createElement('span'), pts = document.createElement('div');
+  info.textContent = `${Math.round(t.y1 - t.y0)}′ · ${t.picks.length} points${t.level ? ', level' : ''}`;
+  sum.append(t.name, info);
+  pts.className = 'pts';
+  d.append(sum, pts);
+  const row = (id, label, cls) => {
+    const w = document.createElement('div'), lab = document.createElement('label'), out = document.createElement('output'), inp = document.createElement('input');
+    w.className = cls ? `ctl ${cls}` : 'ctl';
+    lab.htmlFor = id; lab.textContent = label;
+    out.id = `${id}-o`; out.htmlFor = id;
+    Object.assign(inp, { type: 'range', id, min: 8, max: 34, step: 0.25 });
+    w.append(lab, out, inp);
+    pts.append(w);
+    return inp;
+  };
+  const apply = () => { syncTrussSliders(); placeTrusses(); readouts(); };
+  row(`${t.id}-all`, t.level ? 'Trim, bottom of truss' : 'All points', 'all').addEventListener('input', e => { const v = parseFloat(e.target.value); TRIM[t.id] = TRIM[t.id].map(() => v); apply(); });
+  if (!t.level) t.picks.forEach((y, i) => {
+    const where = Math.abs(y) < 0.01 ? 'center' : `${ftIn(Math.abs(y))} house ${y < 0 ? 'left' : 'right'}`;
+    row(`${t.id}-${i}`, `Point ${i + 1} · ${where}`).addEventListener('input', e => {
+      // a rigid truss tilts no further than straight down, so no two points differ by more than their spacing along it
+      let v = parseFloat(e.target.value);
+      t.picks.forEach((p, j) => { if (j !== i) v = Math.min(TRIM[t.id][j] + Math.abs(p - y), Math.max(TRIM[t.id][j] - Math.abs(p - y), v)); });
+      TRIM[t.id][i] = v;
+      apply();
+    });
+  });
+  trussCtl.append(d);
+}
+function syncSliders() {
+  for (const [id, k, fmt] of SLIDERS) {
+    document.getElementById(id).value = P[k];
+    document.getElementById(`${id}-o`).textContent = fmt(P[k]);
+  }
+}
+for (const [id, k, fmt] of SLIDERS) {
+  document.getElementById(id).addEventListener('input', e => {
+    P[k] = parseFloat(e.target.value);
+    document.getElementById(`${id}-o`).textContent = fmt(P[k]);
+    place();
+  });
+}
+function setScenario(s) {
+  scen = s;
+  document.querySelectorAll('[data-scen]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.scen === s)));
+  document.getElementById('card-existing').hidden = s !== 'existing';
+  document.getElementById('card-center').hidden = s === 'existing';
+  document.getElementById('card-sides').hidden = s === 'existing';
+  document.getElementById('placeNote').hidden = s === 'existing';
+  document.getElementById('sec-truss').hidden = s === 'existing';
+  applyScenario();
+  readouts();
+  document.getElementById('caption').innerHTML = caption(current);
+}
+document.querySelectorAll('[data-scen]').forEach(b => b.addEventListener('click', () => setScenario(b.dataset.scen)));
+function setContent(mode) {
+  content = mode;
+  document.querySelectorAll('[data-content]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.content === mode)));
+  Object.values(SCR).forEach(drawScreen);
+  riserFaces.forEach(drawRiserFace);
+  needsRender = true;
+}
+document.querySelectorAll('[data-content]').forEach(b => b.addEventListener('click', () => setContent(b.dataset.content)));
+// Camera controls, on whichever camera is showing (each keeps its own settings): zoom on a log scale (0 = the
+// camera's widest, 100 = close-up, so right zooms in), pan, and on the side cameras tilt
+const camZoom = document.getElementById('cam-zoom'), camPan = document.getElementById('cam-pan'), camTilt = document.getElementById('cam-tilt');
+const zoomToFrame = (c, s) => c.frameMax * (CLOSE_UP / c.frameMax) ** (s / 100);
+const frameToZoom = c => 100 * Math.log(c.frameH / c.frameMax) / Math.log(CLOSE_UP / c.frameMax);
+function camLabels(c) {
+  const deg = 2 * Math.atan(Math.tan(camAim(c).half) * CAM_ASPECT) / DEG, bottom = (PRESENTER.head - 0.9 * c.frameH) * 12;
+  const shot = c.frameH > HEAD_TO_TOE + 0.01 ? 'Wide' : bottom >= 50 ? 'Close-up' : bottom >= 44 ? 'Chest-up' : bottom >= 30 ? 'Waist-up' : bottom >= 3 ? 'Knees-up' : 'Head to toe';
+  const off = (n, neg, pos, zero) => Math.abs(n) < 0.05 ? zero : `${Math.abs(n).toFixed(1)}° ${n < 0 ? neg : pos}`;
+  document.getElementById('cam-zoom-o').textContent = `${shot} · ${deg.toFixed(1)}°`;
+  document.getElementById('cam-pan-o').textContent = off(c.pan, 'left', 'right', 'On the presenter');
+  document.getElementById('cam-tilt-o').textContent = off(c.tilt, 'down', 'up', 'Framed');
+}
+function camSync(c) {   // the controls take this camera's settings
+  camZoom.value = String(frameToZoom(c));
+  camPan.value = String(c.pan);
+  camTilt.value = String(c.tilt);
+  document.getElementById('camTiltRow').hidden = !c.tilts;
+  camCtl.setAttribute('aria-label', `${c.label} camera`);
+  camLabels(c);
+}
+function camUpdate() {
+  const c = VIEWS[current].shot;
+  if (!c) return;
+  c.frameH = zoomToFrame(c, +camZoom.value);
+  c.pan = +camPan.value;
+  if (c.tilts) c.tilt = +camTilt.value;
+  camLabels(c);
+  const { pos, tgt } = aimShot(c);
+  persp.position.copy(pos);
+  controls.target.copy(tgt);
+  persp.fov = shotFov(c);
+  persp.updateProjectionMatrix();
+  controls.update();
+  document.getElementById('caption').innerHTML = caption(current);
+  needsRender = true;
+}
+for (const el of [camZoom, camPan, camTilt]) el.addEventListener('input', camUpdate);
+// 3D view lens: until the view is moved, the house stays framed (the camera moves in or out); after that the camera
+// stays put and only the angle changes
+function setLens(k) {
+  lens = k;
+  viewLabels();
+  if (current !== 'overview') return;
+  persp.fov = lensFov();
+  persp.updateProjectionMatrix();
+  if (!userMoved) {
+    const f = framePersp(VIEWS.overview);
+    if (tween) { tween.p1 = f.pos; tween.q1 = f.tgt; }
+    else { persp.position.copy(f.pos); controls.target.copy(f.tgt); }
+  }
+  needsRender = true;
+}
+document.querySelectorAll('[data-lens]').forEach(b => b.addEventListener('click', () => setLens(b.dataset.lens)));
+viewTiltEl.addEventListener('input', () => { viewTilt = +viewTiltEl.value; viewLabels(); needsRender = true; });
+
+// A designer's graphic, kept in this browser only. Its pixel size picks the PIXMAP.sizes entry, so it fills just
+// the surfaces that size covers. A listed size loads quietly; any other size takes the nearest shape, with a warning.
+document.getElementById('pixmapFile').addEventListener('change', e => {
+  const f = e.target.files && e.target.files[0], el = document.getElementById('pixmapWarn');
+  if (!f) return;
+  const img = new Image();
+  img.onload = () => {
+    const w = img.naturalWidth, h = img.naturalHeight, off = s => Math.abs(Math.log(w / h * s.h / s.w));
+    const exact = PIXMAP.sizes.find(s => s.w === w && s.h === h);
+    showImg = img;
+    showSize = exact || PIXMAP.sizes.reduce((a, s) => off(s) < off(a) ? s : a);
+    const scaled = off(showSize) < 0.005;
+    el.textContent = exact ? '' : `This file is ${w} × ${h}, not one of the sizes listed below, so it was ${scaled ? 'scaled' : 'stretched'} to fill ${showSize.fills}.${scaled ? '' : ' Expect distortion.'}`;
+    el.hidden = !!exact;
+    document.querySelector('[data-content="file"]').disabled = false;
+    setContent('file');
+  };
+  img.onerror = () => {
+    el.textContent = `${f.name} could not be read as an image. Export it as PNG and try again.`;
+    el.hidden = false;
+  };
+  img.src = URL.createObjectURL(f);
+});
+// Template downloads: each link opens its PNG. Inside the claude.ai viewer the downloads capability saves the file
+// instead (the viewer confirms each save). The bytes go over as an ArrayBuffer, which every host can pass on (a Blob
+// may not survive a host that writes the file itself), and the note under the buttons says how it went, with the
+// plain link as a way out when a host drops the file.
+let saver = null;
+window.claude?.use?.('downloads').then(d => { saver = d; }, () => {});
+const dlNote = document.getElementById('dlNote');
+function dlSay(text, a, lead) {
+  dlNote.textContent = text;
+  if (a) {
+    const open = Object.assign(document.createElement('a'), { href: a.href, target: '_blank', rel: 'noopener', textContent: 'open the PNG in a new tab' });
+    dlNote.append(` ${lead} `, open, ' and save it from there.');
+  }
+  dlNote.hidden = false;
+}
+document.querySelectorAll('a[data-dl]').forEach(a => a.addEventListener('click', async e => {
+  if (!saver) return;
+  e.preventDefault();
+  const name = a.getAttribute('href');
+  try {
+    const res = await fetch(a.href);
+    if (!res.ok) throw { code: `HTTP ${res.status}` };
+    await saver.save({ filename: name, data: await res.arrayBuffer() });
+    dlSay(`Saved ${name}. Look for it in your Downloads folder.`, a, "If it isn't there,");
+  } catch (err) {
+    if (err?.code === 'declined') return;
+    if (err?.code === 'rate_limited') return dlSay('A save prompt is already open.');
+    saver = null;   // from here on the buttons open the PNG directly
+    dlSay(`That download didn't go through${err?.code ? ` (${err.code})` : ''}.`, a, 'Instead,');
+  }
+}));
+document.getElementById('resetBtn').addEventListener('click', () => {
+  Object.assign(P, DEFAULTS);
+  for (const t of TRUSSES) TRIM[t.id] = [...TRIM0[t.id]];
+  syncSliders(); syncTrussSliders(); placeTrusses(); place();
+});
+function copyText() {
+  const { outer } = sideCorners(SCR.left);
+  const t = [
+    `HSL main auditorium, screen placement (${new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })})`,
+    `Screen 1, center: ${ftIn(SPEC.center.w)} × ${ftIn(SPEC.center.h)}, at stage level, top ${ftIn(P.cTrim + SPEC.center.h)}. Face ${ftIn(P.cUp)} upstage of the beam.`,
+    `Screens 2 + 3: ${ftIn(SPEC.side.w)} × ${ftIn(SPEC.side.h)} each, at stage level. Centers ${ftIn(P.sOff)} off centerline, outer edges ${ftIn(Math.abs(outer[1]))}. Face ${ftIn(P.sDown)} downstage of the beam. Toe-in ${P.sToe}°.`,
+    `Today's wall: 3840 × 990 px at 4 mm, directly below the beam, bottom ${ftIn(P.exTrim)} above deck.`,
+    `Band risers: keys front edge ${ftIn(P.keysX)} downstage of the beam, center ${ftIn(P.keysY)} house left; drums front edge ${ftIn(P.drumsX)} downstage, center ${ftIn(P.drumsY)} house right.`,
+    'Truss trims, bottom of truss above the deck, house left to house right:',
+    ...TRUSSES.map(t => t.follows
+      ? `  ${t.name}: ${ftIn(TRIM[t.id][0])}, riding ${ftIn(SCREEN_TRUSS_GAP)} above Screen 1`
+      : t.level ? `  ${t.name}: ${ftIn(TRIM[t.id][0])}, level`
+      : `  ${t.name}: ${TRIM[t.id].map(ftIn).join(', ')}`),
+  ].join('\n');
+  document.getElementById('copyTxt').value = t;
+  return t;
+}
+document.getElementById('copyBtn').addEventListener('click', () => {
+  const t = copyText(), ta = document.getElementById('copyTxt'), ok = document.getElementById('copied');
+  const fallback = () => { ta.hidden = false; ta.focus(); ta.select(); ok.hidden = true; };
+  try {
+    navigator.clipboard.writeText(t).then(() => { ok.hidden = false; ta.hidden = true; setTimeout(() => { ok.hidden = true; }, 2200); }, fallback);
+  } catch (e) { fallback(); }
+});
+document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
+addEventListener('hashchange', () => { const k = location.hash.slice(1); if (VIEWS[k] && k !== current) setView(k); });
+document.getElementById('dimsToggle').addEventListener('change', e => { dimsOn = e.target.checked; refreshAnnot(); });
+controls.addEventListener('change', () => { needsRender = true; });
+controls.addEventListener('start', () => { userMoved = true; });
+document.fonts?.ready.then(() => { Object.values(SCR).forEach(drawScreen); needsRender = true; });
+
+/* ---------- Run ---------- */
+syncSliders();
+syncTrussSliders();
+resize();
+placeTrusses();
+place();
+setScenario(DESIGNER ? 'refresh' : params.get('scen') || 'refresh');   // the designer copy only shows Feb 2027
+const first = location.hash.slice(1);
+setView(VIEWS[first] ? first : 'overview', false);
+const fallbackEl = document.getElementById('fallback');
+function loop(now) {
+  requestAnimationFrame(loop);
+  if (tween) { stepTween(now); needsRender = true; }
+  else if (controls.update()) needsRender = true;
+  // the 3D view's tilt, put back after every update (the orbit aims the camera at its center each frame)
+  if (viewTilt && current === 'overview' && !tween) persp.rotateX(viewTilt * DEG);
+  syncRoof();
+  if (!needsRender) return;
+  needsRender = false;
+  renderer.render(scene, camera);
+  orientLabels();
+  labels.render(scene, camera);
+  updateScale();
+  if (!fallbackEl.hidden) { fallbackEl.hidden = true; document.documentElement.dataset.ready = '1'; }
+}
+requestAnimationFrame(loop);
+</script>
+
+</body>
+</html>
