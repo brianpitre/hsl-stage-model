@@ -403,7 +403,7 @@ textarea.copytxt { width: 100%; min-height: 150px; font: 500 11.5px/1.45 var(--f
 
     <section class="sec" aria-labelledby="h-truss" id="sec-truss">
       <h2 id="h-truss">Trusses, Feb 2027 rig</h2>
-      <p class="note full-only">Layout set 16 Nov. The 50′ lighting truss hangs just downstage of the beam at a fixed 30′ trim. Three pairs of 20′ trusses sit in the 5′ between the beam and Screen 1, 1′-6″ apart on center. Across the stage they sit 32′, 19′ and 6′ apart at center, downstage to upstage, the middle pair halfway between the other two. They open at 29′, 27′-6″ and 26′, downstage to upstage. Screen 1 hangs from its own 60′ truss, with a 1′ corner block at each end and a truss leg from each block down to the deck. That frame moves with Screen 1’s sliders, and the outer two of its nine hang points sit on the corner blocks. A 10′ truss flies level along each house side wall, 2′-6″ in from the wall, at a fixed 18′ trim, placed so that in the Floor camera shot it sits just above the presenter’s head. Each slider sets one pick point’s trim, the bottom of the truss above the deck. Uneven points tilt the truss without stretching it, so its ends swing in and the chains lean slightly; two points can differ by no more than their spacing along the truss. Green dots are the 600 lb hang points.</p>
+      <p class="note full-only">Layout set 16 Nov. The 50′ lighting truss hangs just downstage of the beam at a fixed 30′ trim. Three pairs of 20′ trusses sit in the 5′ between the beam and Screen 1, 1′-6″ apart on center. Across the stage they sit 32′, 19′ and 6′ apart at center, downstage to upstage, the middle pair halfway between the other two. They open at 29′, 27′-6″ and 26′, downstage to upstage. Screen 1 hangs from its own 60′ truss, with a 1′ corner block at each end and a truss leg from each block down to the deck. That frame moves with Screen 1’s sliders, and the outer two of its nine hang points sit on the corner blocks. A 10′ truss flies level along each house side wall, 2′-6″ in from the wall, at a fixed 18′ trim, placed so that in the Floor camera shot it sits just above the presenter’s head. Vello LED Storm 4000 IP fixtures, all facing the house: 15 stacked with no gaps on the outside front chord of each Screen 1 leg, the top one level with the top of the screen, and 8 evenly spaced under the upstage bottom chord of each 20′ truss. Each slider sets one pick point’s trim, the bottom of the truss above the deck. Uneven points tilt the truss without stretching it, so its ends swing in and the chains lean slightly; two points can differ by no more than their spacing along the truss. Green dots are the 600 lb hang points.</p>
       <div id="trussCtl"></div>
       <p class="read full-only" id="t-read"></p>
     </section>
@@ -613,8 +613,9 @@ const EXISTING_X = (S.header.x0 + S.header.x1) / 2 - 0.15;   // today's wall: ce
 const TRUSSES = [
   // Screen 1 hangs on this truss, so it rides just above the screen and moves with Screen 1's sliders. Cut from 70' to
   // 60' with a 1' corner block past each end and a 12" truss leg from each block down to the deck (Brian, 16 Nov);
-  // the sketch's nine hang points stay, so the outer two land on the corner blocks.
-  { id: 't70', name: 'Screen 1 truss', x: 5.26, y0: -30, y1: 30, picks: [-30.32, -22.74, -15.16, -7.58, 0, 7.58, 15.16, 22.74, 30.32], trim: 25.75, follows: true, legs: true },
+  // the sketch's nine hang points stay, so the outer two land on the corner blocks. legFixtures: LED Storms stacked
+  // on the outside front chord of each leg (Brian, 16 Nov).
+  { id: 't70', name: 'Screen 1 truss', x: 5.26, y0: -30, y1: 30, picks: [-30.32, -22.74, -15.16, -7.58, 0, 7.58, 15.16, 22.74, 30.32], trim: 25.75, follows: true, legs: true, legFixtures: 15 },
   // 6" of air downstage of the beam (house face at x -2.94), at a fixed 30' trim, its top 1'-2" under the beam: no
   // sliders. Cut from 60' to 50' (Brian, 16 Nov); the sketch's four hang points all still land on it.
   { id: 't50', name: '50′ truss', x: -3.94, y0: -25, y1: 25, picks: [-22.74, -7.58, 7.58, 22.74], trim: 30.0, fixed: true },
@@ -624,12 +625,13 @@ const TRUSSES = [
   // Each truss keeps the sketch's pick layout: the downstage pair 2.5' in from each end; the middle and upstage
   // pairs (the sketch's old upstage truss) 2.21' in from the inner end and 2.58' from the outer.
   // Opening trims (Brian, 16 Nov): 29' downstage, 26' upstage, and the middle pair halfway (27'-6"); the sliders still move them.
-  { id: 'tdl', name: '20′ downstage, house left', x: 0.89, y0: -35.95, y1: -16.0, picks: [-33.45, -18.5], trim: 29.0 },
-  { id: 'tdr', name: '20′ downstage, house right', x: 0.89, y0: 16.0, y1: 35.95, picks: [18.5, 33.45], trim: 29.0 },
-  { id: 'tml', name: '20′ middle, house left', x: 2.39, y0: -29.45, y1: -9.5, picks: [-26.87, -11.71], trim: 27.5 },
-  { id: 'tmr', name: '20′ middle, house right', x: 2.39, y0: 9.5, y1: 29.45, picks: [11.71, 26.87], trim: 27.5 },
-  { id: 'tul', name: '20′ upstage, house left', x: 3.89, y0: -22.95, y1: -3.0, picks: [-20.37, -5.21], trim: 26.0 },
-  { id: 'tur', name: '20′ upstage, house right', x: 3.89, y0: 3.0, y1: 22.95, picks: [5.21, 20.37], trim: 26.0 },
+  // fixtures: LED Storms evenly spaced under each truss's upstage bottom chord (Brian, 16 Nov).
+  { id: 'tdl', name: '20′ downstage, house left', x: 0.89, y0: -35.95, y1: -16.0, picks: [-33.45, -18.5], trim: 29.0, fixtures: 8 },
+  { id: 'tdr', name: '20′ downstage, house right', x: 0.89, y0: 16.0, y1: 35.95, picks: [18.5, 33.45], trim: 29.0, fixtures: 8 },
+  { id: 'tml', name: '20′ middle, house left', x: 2.39, y0: -29.45, y1: -9.5, picks: [-26.87, -11.71], trim: 27.5, fixtures: 8 },
+  { id: 'tmr', name: '20′ middle, house right', x: 2.39, y0: 9.5, y1: 29.45, picks: [11.71, 26.87], trim: 27.5, fixtures: 8 },
+  { id: 'tul', name: '20′ upstage, house left', x: 3.89, y0: -22.95, y1: -3.0, picks: [-20.37, -5.21], trim: 26.0, fixtures: 8 },
+  { id: 'tur', name: '20′ upstage, house right', x: 3.89, y0: 3.0, y1: 22.95, picks: [5.21, 20.37], trim: 26.0, fixtures: 8 },
   // Side-wall trusses (Brian, 16 Nov): a 10' stick flown level along each house side wall, 2.5' in from the 89.5'
   // wall, on the joist line. Set where the Floor camera's line over the presenter's head meets the house-left wall,
   // so in that shot its bottom edge sits about 3 1/2" above the head; the house-right one mirrors it. Picks 1.5' in
@@ -1420,6 +1422,14 @@ function buildTruss(t) {
     for (const w of [0, TRUSS_SIZE]) lac.push(at(-half, a, w), at(half, b, w));      // top and bottom faces
     for (const dx of [-half, half]) lac.push(at(dx, a, 0), at(dx, b, TRUSS_SIZE));   // front and back faces
   }
+  if (t.fixtures) {   // evenly spaced under the upstage bottom chord, faces to the house, tilting with the truss
+    const o0 = at(0, 0, 0), along = at(0, 1, 0).sub(o0), up = at(0, 0, 1).sub(o0), house = V(0, 0, 1), list = [];
+    for (let i = 0; i < t.fixtures; i++) {
+      const u = e0 + (e1 - e0) * (i + 0.5) / t.fixtures - q.mid;
+      list.push({ o: at(half, u, 0).addScaledVector(up, -0.08), X: along.clone().negate(), Y: up.clone().negate(), Z: house });
+    }
+    addStorms(g, list);
+  }
   if (t.legs) buildLegs(t, q, g, lac);
   g.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(lac), lacingMat));
   t.picks.forEach(p => {
@@ -1464,10 +1474,60 @@ function buildLegs(t, q, g, lac) {
     const plate = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.08, 1.5), M.truss);
     plate.position.copy(W(t.x, yc, deck + 0.04));
     g.add(plate);
+    if (t.legFixtures) {   // stacked with no gaps on the outside front chord, the top one level with Screen 1's top (Brian, 16 Nov), faces to the house
+      const side = Math.sign(yc), n = t.legFixtures, z0 = deck + P.cTrim + SPEC.center.h - n * STORM.L;
+      const X = V(0, -side, 0), Y = V(side, 0, 0), Z = V(0, 0, 1), list = [];
+      for (let i = 0; i < n; i++) list.push({ o: W(t.x - h, yc + side * (h + 0.08), z0 + STORM.L * (i + 0.5)), X, Y, Z });
+      addStorms(g, list);
+    }
   }
 }
+/* ---------- Fixtures: Vello LED Storm 4000 IP (Brian, 16 Nov) ---------- */
+// From the spec sheet: 400 × 200 × 335 mm, 11.5 kg, 1,500 W. Built in its own axes: X along the 400 mm side, Y from
+// the base's mounting face out to the head (335 mm), Z the way the LED face points; the head is tilted to face the
+// house. The face shows the RGB pixel fields above and below the two cool-white strobe strips, unlit.
+const STORM = { name: 'Vello LED Storm 4000 IP', L: 400 / 304.8, D: 200 / 304.8, H: 335 / 304.8, kg: 11.5, watts: 1500 };
+const stormGeo = (() => {
+  const mm = v => v / 304.8, { L, D, H } = STORM;
+  const box = (w, h, d, x, y, z) => new THREE.BoxGeometry(w, h, d).translate(x, y, z);
+  const body = mergeGeometries([
+    box(L, mm(120), D, 0, mm(60), 0),                            // base, against the truss
+    box(mm(28), mm(150), mm(90), -L / 2 + mm(14), mm(185), 0),   // yoke arms
+    box(mm(28), mm(150), mm(90), L / 2 - mm(14), mm(185), 0),
+    box(L, mm(200), mm(80), 0, H - mm(100), 0),                  // head
+  ]);
+  const face = new THREE.PlaneGeometry(L - mm(30), mm(170)).translate(0, H - mm(100), mm(40) + 0.004);
+  return { body, face };
+})();
+const stormFaceMat = (() => {
+  const c = document.createElement('canvas');
+  c.width = 256; c.height = 118;
+  const g = c.getContext('2d');
+  g.fillStyle = '#0c0d0f'; g.fillRect(0, 0, 256, 118);
+  g.fillStyle = '#33373c';   // RGB pixel fields
+  for (let y = 6; y < 114; y += 4) if (y < 46 || y > 70) for (let x = 6; x < 250; x += 4) g.fillRect(x, y, 2, 2);
+  g.fillStyle = '#c3c8cd';   // the two cool-white strobe strips
+  g.fillRect(8, 49, 240, 7); g.fillRect(8, 62, 240, 7);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return new THREE.MeshStandardMaterial({ map: tex, roughness: 0.45 });
+})();
+const stormBodyMat = mat(0x1a1c1f, { roughness: 0.6, metalness: 0.3 });
+const fixtureCount = () => TRUSSES.reduce((n, t) => n + (t.fixtures || 0) + 2 * (t.legFixtures || 0), 0);
+const _stormM = new THREE.Matrix4();
+function addStorms(g, list) {   // list of { o, X, Y, Z } in world space: one instanced body and face per truss
+  if (!list.length) return;
+  const body = new THREE.InstancedMesh(stormGeo.body, stormBodyMat, list.length);
+  const face = new THREE.InstancedMesh(stormGeo.face, stormFaceMat, list.length);
+  list.forEach(({ o, X, Y, Z }, i) => {
+    _stormM.makeBasis(X, Y, Z).setPosition(o);
+    body.setMatrixAt(i, _stormM);
+    face.setMatrixAt(i, _stormM);
+  });
+  g.add(body, face);
+}
 const trussObjs = {};
-if (params.has('debug')) window.__truss = { TRUSSES, TRIM, trussObjs, trussPose };   // local checks of the truss geometry
+if (params.has('debug')) window.__truss = { TRUSSES, TRIM, trussObjs, trussPose, STORM };   // local checks of the truss geometry
 function syncScreenTruss() {
   for (const t of TRUSSES) if (t.follows) {
     t.x = S.header.x1 + P.cUp + SCREEN_TRUSS_BACK;
@@ -1481,7 +1541,10 @@ function placeTrusses(only) {
     const old = trussObjs[t.id];
     if (old) {
       trussGroup.remove(old);
-      old.traverse(o => { if (o.geometry && o.geometry !== pickGeo) o.geometry.dispose(); });
+      old.traverse(o => {
+        if (o.isInstancedMesh) o.dispose();   // the fixtures: their geometry is shared, so only the instances go
+        else if (o.geometry && o.geometry !== pickGeo) o.geometry.dispose();
+      });
     }
     trussObjs[t.id] = buildTruss(t);
     trussGroup.add(trussObjs[t.id]);
@@ -1599,18 +1662,32 @@ function readouts() {
     const rated = t70.picks.length * HANG_LB, top = P.cTrim + SPEC.center.h, face = S.header.x1 + P.cUp, half = SPEC.center.w / 2;
     const lights = TRUSSES.filter(t => !t.follows && !t.alongX);   // the trusses that cross in front of the screen
     // a straight truss is lowest at one end of the stretch that crosses the screen
-    const lowOver = t => { const a = Math.max(t.y0, -half), b = Math.min(t.y1, half); return a < b ? Math.min(trimAt(t, a), trimAt(t, b)) : Infinity; };
+    const FIX_DROP = 0.08 + STORM.H;   // a hung fixture's bottom below the truss bottom
+    const lowOver = t => { const a = Math.max(t.y0, -half), b = Math.min(t.y1, half); return a < b ? Math.min(trimAt(t, a), trimAt(t, b)) - (t.fixtures ? FIX_DROP : 0) : Infinity; };
     const drops = lights.filter(t => t.x < face).map(t => [t, lowOver(t)]).filter(([, v]) => v < top);
     const hits = lights.filter(t => t.x + TRUSS_SIZE / 2 > face && t.x - TRUSS_SIZE / 2 < t70.x + TRUSS_SIZE / 2);
     let msg = `Screen 1 truss: ${t70.picks.length} points × ${HANG_LB} lb = ${rated.toLocaleString('en-US')} lb rated. Screen 1 alone is ${SPEC.center.lb.toLocaleString('en-US')} lb in the ROE calculator, before truss, hang bars and motors.`;
     if (hits.length) msg += ' At this spot Screen 1 and its truss run into the lighting trusses.';
     if (drops.length) {
       const lowest = Math.min(...drops.map(([, v]) => v));
-      msg += drops.length === 1 ? ` One truss in front of the screen drops ${ftIn(top - lowest)} below the screen top (${drops[0][0].name}).`
-        : ` ${drops.length} trusses in front of the screen drop below the screen top, the lowest by ${ftIn(top - lowest)}.`;
+      msg += drops.length === 1 ? ` One truss in front of the screen${drops[0][0].fixtures ? ', with its fixtures,' : ''} drops ${ftIn(top - lowest)} below the screen top (${drops[0][0].name}).`
+        : ` ${drops.length} trusses in front of the screen drop below the screen top, counting fixtures, the lowest by ${ftIn(top - lowest)}.`;
     }
+    // a fixture hung under one truss runs into a neighbor when they overlap in plan and height
+    const ext = t => [Math.min(...TRIM[t.id]), Math.max(...TRIM[t.id])], clashes = [];
+    for (const t of TRUSSES) if (t.fixtures) {
+      const [lo, hi] = ext(t), fx0 = t.x + TRUSS_SIZE / 2 - STORM.D / 2, fx1 = fx0 + STORM.D, fe0 = lo - FIX_DROP, fe1 = hi - 0.08;
+      for (const o of TRUSSES) {
+        if (o === t || o.alongX) continue;
+        const [olo, ohi] = ext(o);
+        if (fx0 < o.x + TRUSS_SIZE / 2 + 0.08 && fx1 > o.x - TRUSS_SIZE / 2 - 0.08 && fe0 < ohi + TRUSS_SIZE + 0.08 && fe1 > olo - 0.08 && t.y0 < o.y1 && t.y1 > o.y0) clashes.push([t, o]);
+      }
+    }
+    if (clashes.length) msg += ` Fixtures under ${[...new Set(clashes.map(([t]) => t.name))].join(' and ')} run into the ${[...new Set(clashes.map(([, o]) => o.name))].join(' and the ')}.`;
+    const nFix = fixtureCount();
+    if (nFix) msg += ` ${nFix} ${STORM.name} fixtures: ${Math.round(nFix * STORM.kg).toLocaleString('en-US')} kg (${Math.round(nFix * STORM.kg * 2.20462).toLocaleString('en-US')} lb), ${(nFix * STORM.watts / 1000).toLocaleString('en-US')} kW at full power.`;
     el.textContent = msg;
-    el.classList.toggle('bad', rated < SPEC.center.lb || drops.length > 0 || hits.length > 0);
+    el.classList.toggle('bad', rated < SPEC.center.lb || drops.length > 0 || hits.length > 0 || clashes.length > 0);
   }
   // Screens 2 + 3
   {
@@ -1667,6 +1744,7 @@ function readouts() {
     ['PA', 'est', 'main hangs where the June photo shows them; side hangs 31′-0″ off center (moved 10′ in); heights confirmed'],
     ['Band risers', 'est', `16′-0″ × 8′-0″, drums riser's stage-left half 10′-0″ deep, ROE JT3.1 500 mm half panels on three sides (160 px each), ten across each front and five on each end; positions set 15 Oct; height ${ftIn(RISER.h)} (one panel) estimated`],
     ['Trusses', 'set', 'lengths and pick points from the 15 Oct rigging sketch; layout set 16 Nov: the 50′ truss 6″ downstage of the beam at a fixed 30′-0″, three pairs of 20′ trusses between the beam and Screen 1, 1′-6″ apart on center; downstage to upstage, 32′, 19′ and 6′ apart at center, opening at 29′, 27′-6″ and 26′; Screen 1’s truss cut to 60′ with a 1′ corner block and a leg to the deck at each end; a 10′ truss along each house side wall at 18′-0″, just above the presenter’s head in the Floor camera shot'],
+    ['Fixtures', 'set', 'Vello LED Storm 4000 IP (spec sheet: 400 × 200 × 335 mm, 11.5 kg, 1,500 W), all facing the house: 15 stacked with no gaps on the outside front chord of each Screen 1 leg, the top one level with the top of the screen, 8 evenly spaced under the upstage bottom chord of each 20′ truss'],
     ['Existing LED wall', 'site', `3840 × 990 px at 4 mm = 15.36 × 3.96 m (${ftIn(SPEC.existing.w)} × ${ftIn(SPEC.existing.h)}), directly below the beam; standing on the deck per the June photo`],
     ['ROE screen sizes', 'quote', '18.0 × 7.5 m center, two at 9.0 × 7.5 m (SQ-35382)'],
     ['ROE screen placement', 'set', 'working layout set 15 Oct: Screen 1 on its truss 5′ upstage of the beam (moved 1′ downstage 17 Oct), side screens 50′-0″ off center, 9′-3″ downstage, toed in 18° (reset 17 Oct), all on the deck'],
@@ -2487,6 +2565,7 @@ function copyText() {
       ? `  ${t.name}: ${ftIn(TRIM[t.id][0])}, riding ${ftIn(SCREEN_TRUSS_GAP)} above Screen 1${t.legs ? `; ${Math.round(t.y1 - t.y0)}′ with a 1′ corner block and a leg to the deck at each end` : ''}`
       : t.fixed ? `  ${t.name}: ${ftIn(TRIM[t.id][0])}, fixed`
       : `  ${t.name}: ${TRIM[t.id].map(ftIn).join(', ')}`),
+    `Fixtures, ${STORM.name}: ${TRUSSES[0].legFixtures} stacked on the outside front chord of each Screen 1 leg, the top one level with Screen 1’s top, ${TRUSSES.find(t => t.fixtures).fixtures} evenly spaced under the upstage bottom chord of each 20′ truss, all facing the house (${fixtureCount()} total).`,
   ].join('\n');
   document.getElementById('copyTxt').value = t;
   return t;
