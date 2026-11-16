@@ -378,7 +378,7 @@ textarea.copytxt { width: 100%; min-height: 150px; font: 500 11.5px/1.45 var(--f
         <p class="read" id="s-read"></p>
       </div>
 
-      <p class="note" id="placeNote">Sizes come from the July Solotech quotes. Screen 1 hangs on the 70′ truss, 5′ upstage of the beam. The sliders open on the working layout, last set on 17 Oct. Use Copy placement to pass along any changes.</p>
+      <p class="note" id="placeNote">Sizes come from the July Solotech quotes. Screen 1 hangs on its 60′ truss, 5′ upstage of the beam. The sliders open on the working layout, last set on 17 Oct. Use Copy placement to pass along any changes.</p>
       <div class="btnrow full-only">
         <button type="button" class="btn primary" id="copyBtn">Copy placement</button>
         <button type="button" class="btn" id="resetBtn">Reset to working layout</button>
@@ -403,7 +403,7 @@ textarea.copytxt { width: 100%; min-height: 150px; font: 500 11.5px/1.45 var(--f
 
     <section class="sec" aria-labelledby="h-truss" id="sec-truss">
       <h2 id="h-truss">Trusses, Feb 2027 rig</h2>
-      <p class="note full-only">Layout set 16 Nov. The 60′ truss hangs just downstage of the beam at a fixed 30′ trim. Three pairs of 20′ trusses sit in the 5′ between the beam and Screen 1, 1′-6″ apart on center. Across the stage they sit 32′, 19′ and 6′ apart at center, downstage to upstage, the middle pair halfway between the other two. They open at 29′, 27′-6″ and 26′, downstage to upstage. The 70′ Screen 1 truss rides just above the screen and moves with Screen 1’s sliders. Each slider sets one pick point’s trim, the bottom of the truss above the deck. Uneven points tilt the truss without stretching it, so its ends swing in and the chains lean slightly; two points can differ by no more than their spacing along the truss. Green dots are the 600 lb hang points.</p>
+      <p class="note full-only">Layout set 16 Nov. The 50′ lighting truss hangs just downstage of the beam at a fixed 30′ trim. Three pairs of 20′ trusses sit in the 5′ between the beam and Screen 1, 1′-6″ apart on center. Across the stage they sit 32′, 19′ and 6′ apart at center, downstage to upstage, the middle pair halfway between the other two. They open at 29′, 27′-6″ and 26′, downstage to upstage. Screen 1 hangs from its own 60′ truss, with a 1′ corner block at each end and a truss leg from each block down to the deck. That frame moves with Screen 1’s sliders, and the outer two of its nine hang points sit on the corner blocks. A 10′ truss flies level along each house side wall, 2′-6″ in from the wall, at a fixed 18′ trim, placed so that in the Floor camera shot it sits just above the presenter’s head. Each slider sets one pick point’s trim, the bottom of the truss above the deck. Uneven points tilt the truss without stretching it, so its ends swing in and the chains lean slightly; two points can differ by no more than their spacing along the truss. Green dots are the 600 lb hang points.</p>
       <div id="trussCtl"></div>
       <p class="read full-only" id="t-read"></p>
     </section>
@@ -608,12 +608,16 @@ const EXISTING_X = (S.header.x0 + S.header.x1) / 2 - 0.15;   // today's wall: ce
 
 // Trusses: lengths and pick points from Brian's top-down rigging sketch (15 Oct 2026), scaled at 18.7 px/ft from
 // its 70' truss; layout reworked by Brian on 16 Nov 2026. x = plan distance upstage of F (truss centerline);
-// y0..y1 = ends; picks = hang points (600 lb each); trim = bottom of truss above the deck.
+// y0..y1 = ends; picks = hang points (600 lb each); trim = bottom of truss above the deck. An alongX truss runs
+// upstage-downstage instead: y = its centerline, x0..x1 = its ends, picks along plan x.
 const TRUSSES = [
-  // Screen 1 hangs on this truss, so it rides just above the screen and moves with Screen 1's sliders
-  { id: 't70', name: 'Screen 1 truss', x: 5.26, y0: -35, y1: 35, picks: [-30.32, -22.74, -15.16, -7.58, 0, 7.58, 15.16, 22.74, 30.32], trim: 25.75, follows: true },
-  // 6" of air downstage of the beam (house face at x -2.94), at a fixed 30' trim, its top 1'-2" under the beam: no sliders
-  { id: 't60', name: '60′ truss', x: -3.94, y0: -30, y1: 30, picks: [-22.74, -7.58, 7.58, 22.74], trim: 30.0, fixed: true },
+  // Screen 1 hangs on this truss, so it rides just above the screen and moves with Screen 1's sliders. Cut from 70' to
+  // 60' with a 1' corner block past each end and a 12" truss leg from each block down to the deck (Brian, 16 Nov);
+  // the sketch's nine hang points stay, so the outer two land on the corner blocks.
+  { id: 't70', name: 'Screen 1 truss', x: 5.26, y0: -30, y1: 30, picks: [-30.32, -22.74, -15.16, -7.58, 0, 7.58, 15.16, 22.74, 30.32], trim: 25.75, follows: true, legs: true },
+  // 6" of air downstage of the beam (house face at x -2.94), at a fixed 30' trim, its top 1'-2" under the beam: no
+  // sliders. Cut from 60' to 50' (Brian, 16 Nov); the sketch's four hang points all still land on it.
+  { id: 't50', name: '50′ truss', x: -3.94, y0: -25, y1: 25, picks: [-22.74, -7.58, 7.58, 22.74], trim: 30.0, fixed: true },
   // Three pairs of 20' trusses in the 5' between the beam (upstage face -0.11) and Screen 1's face (4.89 at the
   // default 5' upstage): 1'-6" on center with 6" of air between neighbors, the beam and the screen. Gaps at center
   // between each pair's inner ends (Brian, 16 Nov): 32' downstage, 6' upstage, and the middle pair halfway (19').
@@ -626,6 +630,12 @@ const TRUSSES = [
   { id: 'tmr', name: '20′ middle, house right', x: 2.39, y0: 9.5, y1: 29.45, picks: [11.71, 26.87], trim: 27.5 },
   { id: 'tul', name: '20′ upstage, house left', x: 3.89, y0: -22.95, y1: -3.0, picks: [-20.37, -5.21], trim: 26.0 },
   { id: 'tur', name: '20′ upstage, house right', x: 3.89, y0: 3.0, y1: 22.95, picks: [5.21, 20.37], trim: 26.0 },
+  // Side-wall trusses (Brian, 16 Nov): a 10' stick flown level along each house side wall, 2.5' in from the 89.5'
+  // wall, on the joist line. Set where the Floor camera's line over the presenter's head meets the house-left wall,
+  // so in that shot its bottom edge sits about 3 1/2" above the head; the house-right one mirrors it. Picks 1.5' in
+  // from each end.
+  { id: 'tsl', name: '10′ side wall, house left', alongX: true, y: -87, x0: -36.15, x1: -26.15, picks: [-34.65, -27.65], trim: 18.0, fixed: true },
+  { id: 'tsr', name: '10′ side wall, house right', alongX: true, y: 87, x0: -36.15, x1: -26.15, picks: [-34.65, -27.65], trim: 18.0, fixed: true },
 ];
 const TRIM0 = Object.fromEntries(TRUSSES.map(t => [t.id, t.picks.map(() => t.trim)]));
 const TRIM = structuredClone(TRIM0);
@@ -1394,11 +1404,15 @@ function bar(a, b, r) {
   m.lookAt(b);
   return m;
 }
+// Most trusses run across the stage (along plan y, centerline at x); an alongX truss runs upstage-downstage
+const crossAt = t => t.alongX ? t.y : t.x;
+const span = t => t.alongX ? [t.x0, t.x1] : [t.y0, t.y1];
+const toPlan = (t, a, c) => t.alongX ? [a, c] : [c, a];   // (along, across) -> plan [x, y]
 function buildTruss(t) {
-  const g = new THREE.Group(), half = TRUSS_SIZE / 2, lac = [], chain = [], q = trussPose(t);
+  const g = new THREE.Group(), half = TRUSS_SIZE / 2, lac = [], chain = [], q = trussPose(t), c = crossAt(t), [e0, e1] = span(t);
   // dx across the truss, u along it from the middle of its picks, w up off its bottom face
-  const at = (dx, u, w) => W(t.x + dx, q.y + u * q.cos - w * q.sin, q.el + u * q.sin + w * q.cos);
-  const u0 = t.y0 - q.mid, u1 = t.y1 - q.mid;
+  const at = (dx, u, w) => W(...toPlan(t, q.y + u * q.cos - w * q.sin, c + dx), q.el + u * q.sin + w * q.cos);
+  const u0 = e0 - q.mid, u1 = e1 - q.mid;
   for (const dx of [-half, half]) for (const w of [0, TRUSS_SIZE]) g.add(bar(at(dx, u0, w), at(dx, u1, w), 0.16));
   const steps = Math.max(1, Math.round(u1 - u0));
   for (let s = 0; s < steps; s++) {
@@ -1406,16 +1420,51 @@ function buildTruss(t) {
     for (const w of [0, TRUSS_SIZE]) lac.push(at(-half, a, w), at(half, b, w));      // top and bottom faces
     for (const dx of [-half, half]) lac.push(at(dx, a, 0), at(dx, b, TRUSS_SIZE));   // front and back faces
   }
+  if (t.legs) buildLegs(t, q, g, lac);
   g.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(lac), lacingMat));
-  t.picks.forEach(y => {
-    const top = at(0, y - q.mid, TRUSS_SIZE);
+  t.picks.forEach(p => {
+    const top = at(0, p - q.mid, TRUSS_SIZE), [px, py] = toPlan(t, p, c);
     const dot = new THREE.Mesh(pickGeo, pickMat);
     dot.position.copy(top);
     g.add(dot);
-    chain.push(top, W(t.x, y, roofEl(t.x) - 3.4));   // chain up to its fixed point in the roof steel
+    chain.push(top, W(px, py, roofEl(px) - 3.4));   // chain up to its fixed point in the roof steel
   });
   g.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(chain), chainMat));
   return g;
+}
+// The Screen 1 frame (always level, since it follows the screen): a 1' corner block past each end of the truss, and a
+// 12" truss leg from each block down to the deck on a small base plate
+function buildLegs(t, q, g, lac) {
+  const h = TRUSS_SIZE / 2, top = q.el, deck = S.deck;
+  const post = (px, py, el0, el1) => {   // a vertical chord, built upright so it needs no lookAt
+    const m = new THREE.Mesh(new THREE.BoxGeometry(0.16, el1 - el0, 0.16), M.truss);
+    m.position.copy(W(px, py, (el0 + el1) / 2));
+    g.add(m);
+  };
+  for (const yc of [t.y0 - h, t.y1 + h]) {   // block and leg centers
+    const xs = [t.x - h, t.x + h], ys = [yc - h, yc + h];
+    const ring = [[xs[0], ys[0]], [xs[1], ys[0]], [xs[1], ys[1]], [xs[0], ys[1]]];
+    // corner block: a 1' cube of chords with an X on every face
+    for (const [px, py] of ring) post(px, py, top, top + TRUSS_SIZE);
+    for (const el of [top, top + TRUSS_SIZE]) {
+      for (let i = 0; i < 4; i++) g.add(bar(W(...ring[i], el), W(...ring[(i + 1) % 4], el), 0.16));
+      lac.push(W(...ring[0], el), W(...ring[2], el), W(...ring[1], el), W(...ring[3], el));
+    }
+    for (let i = 0; i < 4; i++) {
+      const p0 = ring[i], p1 = ring[(i + 1) % 4];
+      lac.push(W(...p0, top), W(...p1, top + TRUSS_SIZE), W(...p0, top + TRUSS_SIZE), W(...p1, top));
+    }
+    // leg: four chords from the deck up to the block, laced on all four faces in about 1' steps
+    for (const [px, py] of ring) post(px, py, deck, top);
+    const n = Math.max(1, Math.round(top - deck));
+    for (let s = 0; s < n; s++) {
+      const a = deck + (top - deck) * s / n, b = deck + (top - deck) * (s + 1) / n;
+      for (let i = 0; i < 4; i++) lac.push(W(...ring[i], a), W(...ring[(i + 1) % 4], b));
+    }
+    const plate = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.08, 1.5), M.truss);
+    plate.position.copy(W(t.x, yc, deck + 0.04));
+    g.add(plate);
+  }
 }
 const trussObjs = {};
 if (params.has('debug')) window.__truss = { TRUSSES, TRIM, trussObjs, trussPose };   // local checks of the truss geometry
@@ -1548,7 +1597,7 @@ function readouts() {
   {
     const el = document.getElementById('t-read'), t70 = TRUSSES[0];
     const rated = t70.picks.length * HANG_LB, top = P.cTrim + SPEC.center.h, face = S.header.x1 + P.cUp, half = SPEC.center.w / 2;
-    const lights = TRUSSES.filter(t => !t.follows);
+    const lights = TRUSSES.filter(t => !t.follows && !t.alongX);   // the trusses that cross in front of the screen
     // a straight truss is lowest at one end of the stretch that crosses the screen
     const lowOver = t => { const a = Math.max(t.y0, -half), b = Math.min(t.y1, half); return a < b ? Math.min(trimAt(t, a), trimAt(t, b)) : Infinity; };
     const drops = lights.filter(t => t.x < face).map(t => [t, lowOver(t)]).filter(([, v]) => v < top);
@@ -1617,7 +1666,7 @@ function readouts() {
     ['Seats as modeled', 'est', `${seats.length.toLocaleString('en-US')}: floor ${tierCount('floor')}, slope ${tierCount('slope')}, balcony ${tierCount('balcony')}. The 2016 layout, trimmed at the walls, FOH and camera bay`],
     ['PA', 'est', 'main hangs where the June photo shows them; side hangs 31′-0″ off center (moved 10′ in); heights confirmed'],
     ['Band risers', 'est', `16′-0″ × 8′-0″, drums riser's stage-left half 10′-0″ deep, ROE JT3.1 500 mm half panels on three sides (160 px each), ten across each front and five on each end; positions set 15 Oct; height ${ftIn(RISER.h)} (one panel) estimated`],
-    ['Trusses', 'set', 'lengths and pick points from the 15 Oct rigging sketch; layout set 16 Nov: the 60′ truss 6″ downstage of the beam at a fixed 30′-0″, three pairs of 20′ trusses between the beam and Screen 1, 1′-6″ apart on center; downstage to upstage, 32′, 19′ and 6′ apart at center, opening at 29′, 27′-6″ and 26′'],
+    ['Trusses', 'set', 'lengths and pick points from the 15 Oct rigging sketch; layout set 16 Nov: the 50′ truss 6″ downstage of the beam at a fixed 30′-0″, three pairs of 20′ trusses between the beam and Screen 1, 1′-6″ apart on center; downstage to upstage, 32′, 19′ and 6′ apart at center, opening at 29′, 27′-6″ and 26′; Screen 1’s truss cut to 60′ with a 1′ corner block and a leg to the deck at each end; a 10′ truss along each house side wall at 18′-0″, just above the presenter’s head in the Floor camera shot'],
     ['Existing LED wall', 'site', `3840 × 990 px at 4 mm = 15.36 × 3.96 m (${ftIn(SPEC.existing.w)} × ${ftIn(SPEC.existing.h)}), directly below the beam; standing on the deck per the June photo`],
     ['ROE screen sizes', 'quote', '18.0 × 7.5 m center, two at 9.0 × 7.5 m (SQ-35382)'],
     ['ROE screen placement', 'set', 'working layout set 15 Oct: Screen 1 on its truss 5′ upstage of the beam (moved 1′ downstage 17 Oct), side screens 50′-0″ off center, 9′-3″ downstage, toed in 18° (reset 17 Oct), all on the deck'],
@@ -2026,7 +2075,7 @@ for (const t of TRUSSES) {
   if (t.fixed) {
     const f = document.createElement('div'), info = document.createElement('span');
     f.className = 'truss fixed';
-    info.textContent = `${Math.round(t.y1 - t.y0)}′ · ${t.picks.length} points · fixed at ${ftIn(t.trim)}`;
+    info.textContent = `${Math.round(span(t)[1] - span(t)[0])}′ · ${t.picks.length} points · fixed at ${ftIn(t.trim)}`;
     f.append(t.name, info);
     trussCtl.append(f);
     continue;
@@ -2435,7 +2484,7 @@ function copyText() {
     `Band risers: keys front edge ${ftIn(P.keysX)} downstage of the beam, center ${ftIn(P.keysY)} house left; drums front edge ${ftIn(P.drumsX)} downstage, center ${ftIn(P.drumsY)} house right.`,
     'Truss trims, bottom of truss above the deck, house left to house right:',
     ...TRUSSES.map(t => t.follows
-      ? `  ${t.name}: ${ftIn(TRIM[t.id][0])}, riding ${ftIn(SCREEN_TRUSS_GAP)} above Screen 1`
+      ? `  ${t.name}: ${ftIn(TRIM[t.id][0])}, riding ${ftIn(SCREEN_TRUSS_GAP)} above Screen 1${t.legs ? `; ${Math.round(t.y1 - t.y0)}′ with a 1′ corner block and a leg to the deck at each end` : ''}`
       : t.fixed ? `  ${t.name}: ${ftIn(TRIM[t.id][0])}, fixed`
       : `  ${t.name}: ${TRIM[t.id].map(ftIn).join(', ')}`),
   ].join('\n');
