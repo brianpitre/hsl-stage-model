@@ -403,7 +403,7 @@ textarea.copytxt { width: 100%; min-height: 150px; font: 500 11.5px/1.45 var(--f
 
     <section class="sec" aria-labelledby="h-truss" id="sec-truss">
       <h2 id="h-truss">Trusses, Feb 2027 rig</h2>
-      <p class="note full-only">Layout set 16 Nov. The 60′ truss hangs just downstage of the beam at a fixed 28′ trim. Three pairs of 20′ trusses sit in the 5′ between the beam and Screen 1, 1′-6″ apart on center. Across the stage, the downstage pair keeps the rigging sketch’s spacing, 32′-4¾″ apart at center; the upstage pair sits 9′-8½″ apart, and the middle pair splits the difference at 21′-0½″. They open at 28′, 27′ and 26′, downstage to upstage. The 70′ Screen 1 truss rides just above the screen and moves with Screen 1’s sliders. Each slider sets one pick point’s trim, the bottom of the truss above the deck. Uneven points tilt the truss without stretching it, so its ends swing in and the chains lean slightly; two points can differ by no more than their spacing along the truss. Green dots are the 600 lb hang points.</p>
+      <p class="note full-only">Layout set 16 Nov. The 60′ truss hangs just downstage of the beam at a fixed 30′ trim. Three pairs of 20′ trusses sit in the 5′ between the beam and Screen 1, 1′-6″ apart on center. Across the stage they sit 32′, 19′ and 6′ apart at center, downstage to upstage, the middle pair halfway between the other two. They open at 29′, 27′-6″ and 26′, downstage to upstage. The 70′ Screen 1 truss rides just above the screen and moves with Screen 1’s sliders. Each slider sets one pick point’s trim, the bottom of the truss above the deck. Uneven points tilt the truss without stretching it, so its ends swing in and the chains lean slightly; two points can differ by no more than their spacing along the truss. Green dots are the 600 lb hang points.</p>
       <div id="trussCtl"></div>
       <p class="read full-only" id="t-read"></p>
     </section>
@@ -612,19 +612,20 @@ const EXISTING_X = (S.header.x0 + S.header.x1) / 2 - 0.15;   // today's wall: ce
 const TRUSSES = [
   // Screen 1 hangs on this truss, so it rides just above the screen and moves with Screen 1's sliders
   { id: 't70', name: 'Screen 1 truss', x: 5.26, y0: -35, y1: 35, picks: [-30.32, -22.74, -15.16, -7.58, 0, 7.58, 15.16, 22.74, 30.32], trim: 25.75, follows: true },
-  // 6" of air downstage of the beam (house face at x -2.94), at a fixed 28' trim: no sliders
-  { id: 't60', name: '60′ truss', x: -3.94, y0: -30, y1: 30, picks: [-22.74, -7.58, 7.58, 22.74], trim: 28.0, fixed: true },
+  // 6" of air downstage of the beam (house face at x -2.94), at a fixed 30' trim, its top 1'-2" under the beam: no sliders
+  { id: 't60', name: '60′ truss', x: -3.94, y0: -30, y1: 30, picks: [-22.74, -7.58, 7.58, 22.74], trim: 30.0, fixed: true },
   // Three pairs of 20' trusses in the 5' between the beam (upstage face -0.11) and Screen 1's face (4.89 at the
   // default 5' upstage): 1'-6" on center with 6" of air between neighbors, the beam and the screen. Gaps at center
-  // between each pair's inner ends (Brian, 16 Nov): the downstage pair keeps the sketch's 32.4'; the upstage pair
-  // is half its first 16 Nov gap (19.4' -> 9.7'); the middle pair sits halfway between (21.05'). The middle and
-  // upstage pairs keep the pick layout of the sketch's old upstage pair: 2.21' in from the inner end, 2.58' from the outer.
-  { id: 'tdl', name: '20′ downstage, house left', x: 0.89, y0: -36.15, y1: -16.2, picks: [-33.65, -18.7], trim: 28.0 },
-  { id: 'tdr', name: '20′ downstage, house right', x: 0.89, y0: 16.2, y1: 36.15, picks: [18.7, 33.65], trim: 28.0 },
-  { id: 'tml', name: '20′ middle, house left', x: 2.39, y0: -30.475, y1: -10.525, picks: [-27.895, -12.735], trim: 27.0 },
-  { id: 'tmr', name: '20′ middle, house right', x: 2.39, y0: 10.525, y1: 30.475, picks: [12.735, 27.895], trim: 27.0 },
-  { id: 'tul', name: '20′ upstage, house left', x: 3.89, y0: -24.8, y1: -4.85, picks: [-22.22, -7.06], trim: 26.0 },
-  { id: 'tur', name: '20′ upstage, house right', x: 3.89, y0: 4.85, y1: 24.8, picks: [7.06, 22.22], trim: 26.0 },
+  // between each pair's inner ends (Brian, 16 Nov): 32' downstage, 6' upstage, and the middle pair halfway (19').
+  // Each truss keeps the sketch's pick layout: the downstage pair 2.5' in from each end; the middle and upstage
+  // pairs (the sketch's old upstage truss) 2.21' in from the inner end and 2.58' from the outer.
+  // Opening trims (Brian, 16 Nov): 29' downstage, 26' upstage, and the middle pair halfway (27'-6"); the sliders still move them.
+  { id: 'tdl', name: '20′ downstage, house left', x: 0.89, y0: -35.95, y1: -16.0, picks: [-33.45, -18.5], trim: 29.0 },
+  { id: 'tdr', name: '20′ downstage, house right', x: 0.89, y0: 16.0, y1: 35.95, picks: [18.5, 33.45], trim: 29.0 },
+  { id: 'tml', name: '20′ middle, house left', x: 2.39, y0: -29.45, y1: -9.5, picks: [-26.87, -11.71], trim: 27.5 },
+  { id: 'tmr', name: '20′ middle, house right', x: 2.39, y0: 9.5, y1: 29.45, picks: [11.71, 26.87], trim: 27.5 },
+  { id: 'tul', name: '20′ upstage, house left', x: 3.89, y0: -22.95, y1: -3.0, picks: [-20.37, -5.21], trim: 26.0 },
+  { id: 'tur', name: '20′ upstage, house right', x: 3.89, y0: 3.0, y1: 22.95, picks: [5.21, 20.37], trim: 26.0 },
 ];
 const TRIM0 = Object.fromEntries(TRUSSES.map(t => [t.id, t.picks.map(() => t.trim)]));
 const TRIM = structuredClone(TRIM0);
@@ -1616,7 +1617,7 @@ function readouts() {
     ['Seats as modeled', 'est', `${seats.length.toLocaleString('en-US')}: floor ${tierCount('floor')}, slope ${tierCount('slope')}, balcony ${tierCount('balcony')}. The 2016 layout, trimmed at the walls, FOH and camera bay`],
     ['PA', 'est', 'main hangs where the June photo shows them; side hangs 31′-0″ off center (moved 10′ in); heights confirmed'],
     ['Band risers', 'est', `16′-0″ × 8′-0″, drums riser's stage-left half 10′-0″ deep, ROE JT3.1 500 mm half panels on three sides (160 px each), ten across each front and five on each end; positions set 15 Oct; height ${ftIn(RISER.h)} (one panel) estimated`],
-    ['Trusses', 'set', 'lengths and pick points from the 15 Oct rigging sketch; layout set 16 Nov: the 60′ truss 6″ downstage of the beam at a fixed 28′-0″, three pairs of 20′ trusses between the beam and Screen 1, 1′-6″ apart on center; downstage to upstage, 32′-4¾″, 21′-0½″ and 9′-8½″ apart at center, opening at 28′, 27′ and 26′'],
+    ['Trusses', 'set', 'lengths and pick points from the 15 Oct rigging sketch; layout set 16 Nov: the 60′ truss 6″ downstage of the beam at a fixed 30′-0″, three pairs of 20′ trusses between the beam and Screen 1, 1′-6″ apart on center; downstage to upstage, 32′, 19′ and 6′ apart at center, opening at 29′, 27′-6″ and 26′'],
     ['Existing LED wall', 'site', `3840 × 990 px at 4 mm = 15.36 × 3.96 m (${ftIn(SPEC.existing.w)} × ${ftIn(SPEC.existing.h)}), directly below the beam; standing on the deck per the June photo`],
     ['ROE screen sizes', 'quote', '18.0 × 7.5 m center, two at 9.0 × 7.5 m (SQ-35382)'],
     ['ROE screen placement', 'set', 'working layout set 15 Oct: Screen 1 on its truss 5′ upstage of the beam (moved 1′ downstage 17 Oct), side screens 50′-0″ off center, 9′-3″ downstage, toed in 18° (reset 17 Oct), all on the deck'],
